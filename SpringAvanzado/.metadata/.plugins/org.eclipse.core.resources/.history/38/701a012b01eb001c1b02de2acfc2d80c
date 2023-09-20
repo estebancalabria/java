@@ -1,0 +1,5 @@
+package org.allianz.hellospringboot.aspects;
+
+public class LogAfterGetMethodServiceAspect {
+
+}

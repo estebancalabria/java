@@ -1,0 +1,8 @@
+package org.allianz.hellospringboot.configurations;
+
+import lombok.*;
+
+@Getter @Setter
+public class YamlConfigProperties {
+	private String idioma;
+}

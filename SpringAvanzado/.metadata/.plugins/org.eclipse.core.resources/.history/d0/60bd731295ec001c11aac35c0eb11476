@@ -1,0 +1,51 @@
+package org.allianz.hellospringboot;
+
+import org.allianz.hellospringboot.models.Cliente;
+import org.allianz.hellospringboot.repositories.ClienteRepository;
+import org.allianz.hellospringboot.services.IClienteService;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import java.util.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+public class ClienteServiceTests {
+
+	@MockBean
+	private ClienteRepository repository;
+	
+	@Autowired
+	private IClienteService service;
+	
+	@BeforeAll
+	public void configurarMocks() {
+		when(repository.findAll()).thenReturn(
+				new ArrayList<Cliente>() {
+					private static final long serialVersionUID = 1L;
+					{
+						add(new Cliente() {
+							{
+								setId(1);
+								setNombre("TEST");
+								setApellido("TEST");
+								setTelefono("555-555555");
+								setEmail("test@test");
+							}
+						});
+					}
+				}
+		);
+	}
+	
+	@Test
+	public void testGetAll() {
+		List<Cliente> all = this.service.getAll();		
+		assertThat(all.size()).isGreaterThanOrEqualTo(1);
+		assertThat(all.get(0).getNombre()).isEqualTo("TEST");
+	}
+	
+}

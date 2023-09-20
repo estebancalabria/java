@@ -1,0 +1,9 @@
+package org.allianz.hellospringboot;
+
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+public class ServicesTests {
+
+	private ClienteRepository repository;
+}

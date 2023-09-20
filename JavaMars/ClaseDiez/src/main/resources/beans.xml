@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="geografiaService" class="org.indra.services.GeografiaService">
+	  <property name="comunidadesAutonomas">
+	    <list>
+	    	<value>Madrid</value>
+	    	<value>Andalucia</value>
+	    	<value>Asturias</value>
+	    	<value>Galicia</value>
+	    	<value>Cantabria</value>
+	    </list>
+	  </property>
+	  
+	  <property name="provincias">
+	  	<map>
+	  		<entry key="Madrid" value="Madrid"/>
+	  		<entry key="Andalucia" value="Sevilla,Huelva,Cadiz,Malaga" />
+	  		<entry key="Asturias" value="Asturias" />
+	  	</map>
+	  </property>
+	</bean>
+	
+	<bean id="personaService" class="org.indra.services.PersonaService">
+		<property name="connectionString" value="jdbc:sqlite:personas.db" />
+	</bean>
+
+</beans>

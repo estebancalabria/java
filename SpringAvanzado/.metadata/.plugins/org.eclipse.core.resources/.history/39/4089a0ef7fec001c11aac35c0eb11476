@@ -1,0 +1,36 @@
+package org.allianz.hellospringboot;
+
+import org.allianz.hellospringboot.controllers.ClienteController;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+public class ClienteControllerTests {
+
+	@Autowired
+	private ClienteController controller;
+	
+	@Autowired
+	private MockMvc client;
+	
+	@Test
+	public void testControllerLoads() {
+		assertThat(controller).isNotNull();
+	}
+	
+	@Test
+	public void testListarTodos() throws Exception {
+		this
+			.client
+			.perform(get("/api/cliente/"))
+			.andDo(print())
+			.andExpect(status().isOk());
+	}
+}

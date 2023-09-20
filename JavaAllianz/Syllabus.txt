@@ -1,0 +1,77 @@
+Clase 1.
+      Familiarizacion con Java y el entorno Eclipse
+      Conceptos de POO (Encapsulamiento, constructor)
+      Build Java applications that take advantage of the object-oriented features of the Java language, such as encapsulation, inheritance, and
+      polymorphism.
+           -Manejo implicito de referencias y organizacion de la memoria en un POO (heap y Stack)
+      Implement error handling techniques using exception handling.
+           -Try catch
+           -Error
+
+Clase 2
+      Uso de Git
+      El uso de atributos static (Poo)
+      Armado de un proyecto modelo basado en la estuctura practica.
+            -Division en capas mediante paquetes
+            -Interfaces e Injeccion de Dependencias
+      Manejo de Colecciones y expresiones Lambda
+             -Referencia a metodos mediante el operador :: (System.out::println)
+      Importancia de seguir al profesor en Instagram
+      Build applications that use the Java collections framework.
+      Search and filter collections with Lambda expressions.
+      Implement error handling techniques using exception handling. 
+      Practica de mocks y aplicacion de Inyeccion de dpendencias
+
+Clase 3
+      Manejo de fichero mediante la libreria java.nio y java.nio2
+      Implement input/output (I/O) functionality to read and write to data and text files.
+      Manipulate files, directories, and file systems using the JDK NIO.2 specification 
+      Implement error handling techniques using exception handling.                 
+      Inyeccion de dependencias mediante un repositorio de Archivos    
+             
+Clase 4
+      Maejo de Liberias y jars...
+      Acceso a datos mediante jdbc
+            -Acceder a una base de datos mysql
+            -Acceso a datos mediante un sqlite embebido 
+      SQL y JDBC
+             -Connection, Statement, PreparedStatement, ResultSet
+      Repositorio de Datos (Revisitar la Injeccion de dependencias)
+      Intro a JPA.
+      Perform multiple operations on database tables including create, read, update and delete using JDBC and JPA technology.
+
+
+Clase 5
+      Vimos lo que es el repositorio Maven
+      Creacion de proyectos Maven con Spring Boot (Spring Intializr)
+         -Cargar librerias mediante el archivo POM
+         -Utilizar controladores para invocar metodos de Java desde el browser (microservicios)
+         -Menos configuraciones
+             -Webserver Tomcat embebido en el jar que se ejecuta
+             -Utilizar Anotaciones como @RestController para configurar el proyecto
+      Configurar enpoints con @RequesMapping
+   
+
+Clase 6
+     Creamos un proyecto de SpringBoot
+            -SpringWeb
+            -JDBC
+            -Lombok
+     Implementacion de Interfaces y el concepto de Injeccion de dependecias en Spring Boot
+             -@Service
+     Creacion de un proyecto de ejemplo en capas
+             -Controladores
+             -Servicios
+             -Repositorios
+     Conectarnos a SQLITE mediante JDBC e incluir dependencias a JARs en el POM  
+     Configuracion de las depencias mediante archivo aplication.properties
+
+Clase 7
+     Creamos un proyecto englobador 
+     (Ver archivo Diagramaa General y Pasos.txt)
+     Http Get y HTTP Post
+     Probarlo con Postman
+
+Clase 8
+
+   

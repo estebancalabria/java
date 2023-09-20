@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping>
+	<class name="org.indra.models.Libro" table="Book">
+		<id name="id">
+			<generator class="increment" />
+		</id>
+		<property name="titulo" column="title" />
+		<property name="escritor" column="author" />
+	</class>
+</hibernate-mapping>

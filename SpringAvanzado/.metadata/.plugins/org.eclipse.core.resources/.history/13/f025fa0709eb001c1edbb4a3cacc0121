@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Ejemplo Spring Boot
+    port: 3000
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_springdemo
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+		

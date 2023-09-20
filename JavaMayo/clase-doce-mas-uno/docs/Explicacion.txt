@@ -1,0 +1,27 @@
+Inyeccion de dependencia
+
+Sin Injeccion de dependencias
+(Servicio)  ---> (Repository)
+A crea B
+Ejemplo
+-Servicio crea a DatabaseRepository
+-Quiero que Servicio trabaje ahora MockRepository (para pruebas-
+-Tengo que modificar el fuente de Servicio (cambiar donde hago el new)
+
+Con Injeccion de dependencias
+Alguien crea a B
+Alguien le pasa B a A (Le inyecta las dependencias)
+Ejemplo
+-Configurador crea a DatabaseRepository
+-El configurador le pasa el DabaseRepository al Servicio
+-Si quiero que el Servicio trabaje con el MockRepository (para pruebas)
+-Tengo que modificar el configurador, no el servicio 
+       -El servicio INYECTA la dependencia
+
+Tiempos
+-------
+-Tiempo de compilacion
+-Tiempo de configuracion 
+   -(Donde antes de ejecutar defino quien depende de quien)
+   -Es cuando inyecto todas las dependencias
+-Tiempo de Ejecucion

@@ -1,0 +1,12 @@
+package org.allianz.hellospringboot.configurations;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AuthController {
+	
+   @GetMapping(/api/login)
+   public String GetToken() {
+	   return "TOKENDEEJEMPLO";
+   }
+}
