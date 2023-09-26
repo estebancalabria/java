@@ -77,6 +77,4 @@ public class Alumno extends Persona{
 				this.getApellido(),
 				this.getEdad());
 	}
-	
-	
 }
