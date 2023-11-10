@@ -14,7 +14,8 @@ public class Program {
 		Console.writeLine("Bienvenidos a la ultima clase del curso de Java");
 		
 		try {
-			PersistenciaClienteArchivo db = new PersistenciaClienteArchivo(); 
+			//PersistenciaClienteArchivo db = new PersistenciaClienteArchivo();
+			PersistenciaCliente db = new PersistenciaClienteArchivo();
 			
 			Cliente cliente = new Cliente(2, "Mark", "Zuckemberg", LocalDate.of(1984, Month.MAY, 14));
 			cliente.validate();
