@@ -24,24 +24,39 @@ public class AutomovilMockRepository implements AutomovilRepository {
 	
 	
 	public AutomovilMockRepository() {
-		Automovil auto = new Automovil("Seat","Ibiza",2000);
+		Automovil auto = new Automovil();
 		auto.setId(AutomovilMockRepository.nextId());
+		auto.setMarca("Seat");
+		auto.setModelo("Ibiza");
+		auto.setAño(2000);
 		this.automoviles.add(auto);
 		
-		auto = new Automovil("Porsche","911",1960);
+		auto = new Automovil();
 		auto.setId(AutomovilMockRepository.nextId());
+		auto.setMarca("Porsche");
+		auto.setModelo("911");
+		auto.setAño(1960);
 		this.automoviles.add(auto);
 
-		auto = new Automovil("Bugatti","Veyron",2015);
+		auto = new Automovil();
 		auto.setId(AutomovilMockRepository.nextId());
+		auto.setMarca("Bugatti");
+		auto.setModelo("Veyron");
+		auto.setAño(2015);
 		this.automoviles.add(auto);
 
-		auto = new Automovil("Ford","Mustang",1967);
+		auto = new Automovil();
 		auto.setId(AutomovilMockRepository.nextId());
+		auto.setMarca("Formd");
+		auto.setModelo("Mustang");
+		auto.setAño(1967);
 		this.automoviles.add(auto);
 		
-		auto = new Automovil("Opel", "Astra", 2003);
+		auto = new Automovil();
 		auto.setId(AutomovilMockRepository.nextId());
+		auto.setMarca("Opel");
+		auto.setModelo("Astra");
+		auto.setAño(2003);
 		this.automoviles.add(auto);
 	}
 

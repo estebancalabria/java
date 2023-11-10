@@ -21,7 +21,10 @@ class ClaseCuatroApplicationTests {
 		//List<Automovil> automoviles = ;
 		int totalAntes = controller.index().getBody().size();
 		
-		Automovil auto = new Automovil("Tesla","M3",2003);
+		Automovil auto = new Automovil();
+		auto.setMarca("Tesla");
+		auto.setModelo("M3");
+		auto.setAño(2003);
 		controller.post(auto);
 		
 		int totalDespues = controller.index().getBody().size();

@@ -57,8 +57,9 @@ public class AutomovilService implements CrudService<Automovil> {
 	@Override
 	public Automovil obtenerPorId(int id) {
 		log.info("Obeniendo un automovil con id" + id);
-		Automovil result = new Automovil("Seat","Ibiza",2000);
-		result.setId(id);
-		return result;
+		//Automovil result = new Automovil("Seat","Ibiza",2000);
+		//result.setId(id);
+		//return result;
+		return this.repository.findById(id);
 	}
 }
