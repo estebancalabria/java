@@ -1,0 +1,3 @@
+Cliente(super=ObjetoDeNegocio(id=2), documento=2, nombre=Mark, apellido=Zuckemberg)
+Cliente(super=ObjetoDeNegocio(id=1), documento=1, nombre=Elon, apellido=Musk)
+Cliente(super=ObjetoDeNegocio(id=2), documento=2, nombre=Mark, apellido=Zuckemberg)
