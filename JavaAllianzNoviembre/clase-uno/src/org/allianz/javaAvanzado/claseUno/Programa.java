@@ -10,8 +10,8 @@ public class Programa {
 	public static void main(String[] args) {
         System.out.println("Hola Mundo");
         
-        //Log log = new ConsoleLog();
-        Log log = new FileLog();
+        Log log = new ConsoleLog();
+        //Log log = new FileLog();
         
         List<Cliente> clientes = new ArrayList<>();
         
