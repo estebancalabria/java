@@ -5,6 +5,7 @@ import lombok.*;
 @ToString(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Cliente extends ObjetoDeNegocio {
 	
 	@Getter @Setter

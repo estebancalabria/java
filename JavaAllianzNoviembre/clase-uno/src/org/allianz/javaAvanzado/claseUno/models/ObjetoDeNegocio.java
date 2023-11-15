@@ -6,7 +6,7 @@ import lombok.*;
 public abstract class ObjetoDeNegocio {
 
 	private static int ULTIMO_ID = 0;
-	@Getter
+	@Getter @Setter
 	private int id;
 	
 	public ObjetoDeNegocio() {

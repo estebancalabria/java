@@ -66,4 +66,9 @@ public class ClienteServiceImplementation implements ClienteService {
 
 	}
 
+	@Override
+	public List<Cliente> obtenerTodos() {
+		return this.repository.findAll();
+	}
+
 }
