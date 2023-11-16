@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="log" class="org.allianz.javaAvanzado.claseCuatro.infraestructura.ConsoleLog" />
+	
+	<bean id="clienteRepository" class="org.allianz.javaAvanzado.claseCuatro.repository.ClienteDatabaseRepository">
+		<constructor-arg ref="log" />
+		<constructor-arg value="jdbc:sqlite:clientes.db"/>
+	</bean>
+	
+	<bean id="clienteService" class="org.allianz.javaAvanzado.claseCuatro.services.ClienteServiceImplementation">
+		<constructor-arg ref="clienteRepository" />
+	</bean>
+	
+	<bean id="clienteController" class="org.allianz.javaAvanzado.claseCuatro.controllers.ClienteController">
+        <constructor-arg ref="clienteService"/>
+    </bean>
+
+</beans>

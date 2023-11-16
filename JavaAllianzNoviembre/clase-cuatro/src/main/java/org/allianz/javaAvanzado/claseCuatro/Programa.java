@@ -1,13 +1,15 @@
-package org.allianz.javaAvanzado.claseUno;
+package org.allianz.javaAvanzado.claseCuatro;
 
 import java.util.*;
 import java.io.*;
 
-import org.allianz.javaAvanzado.claseUno.controllers.*;
-import org.allianz.javaAvanzado.claseUno.infraestructura.*;
-import org.allianz.javaAvanzado.claseUno.models.*;
-import org.allianz.javaAvanzado.claseUno.repository.*;
-import org.allianz.javaAvanzado.claseUno.services.*;
+import org.allianz.javaAvanzado.claseCuatro.controllers.*;
+import org.allianz.javaAvanzado.claseCuatro.infraestructura.*;
+import org.allianz.javaAvanzado.claseCuatro.models.*;
+import org.allianz.javaAvanzado.claseCuatro.repository.*;
+import org.allianz.javaAvanzado.claseCuatro.services.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import lombok.*;
 
@@ -85,7 +87,7 @@ public class Programa {
 		}*/
         
         //Tiempo de Configuracion
-        ClienteRepository repository = new ClienteDatabaseRepository(new ConsoleLog(),"jdbc:sqlite:clientes.db");
+        /*ClienteRepository repository = new ClienteDatabaseRepository(new ConsoleLog(),"jdbc:sqlite:clientes.db");
         ClienteService service = new ClienteServiceImplementation(repository);
         ClienteController controller = new ClienteController(service);
         
@@ -96,6 +98,29 @@ public class Programa {
         	writer.write(controller.get());
         } finally {
         	writer.close();
+        }*/
+        
+        //Spring
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+        try {
+        	//Creamos Log
+	        //Log log = (Log)context.getBean("log");
+	        //log.info("Mi Primer Ejemplo de Spring");
+        	
+        	//Creamos repository
+        	/*ClienteRepository repo = (ClienteRepository)context.getBean("clienteRepository");
+        	repo.insert(new Cliente(1234,"Scott","Adams"));
+        	repo.findAll().forEach(System.out::println);*/
+        	
+        	//Ahora le toca al service
+        	//ClienteService service = (ClienteService)context.getBean("clienteService");
+        	//service.obtenerTodos().forEach(System.out::println);
+        	
+        	//Por ultimo el controller
+            ClienteController controller = (ClienteController)context.getBean("clienteController");
+            System.out.println(controller.get());
+        } finally {
+        	context.close();
         }
         
 	}
