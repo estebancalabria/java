@@ -4,11 +4,14 @@ import java.util.Random;
 import org.indra.io.Console;
 
 public class JuegoAdivinanzas {
+	
+	private static final int CANTIDAD_OPORTUNIDADES = 5;
+	private static final String MENSAJE_NUMERO_MENOR = "El numero es menor al sugerido.";
 
 	public void jugar() {
 		
 		Random generadorNumeros = new Random();
-		int contador = 5;
+		int contador = CANTIDAD_OPORTUNIDADES;
 		int valor = generadorNumeros.nextInt(0, 100);
 		boolean adivinado = false;
 		int intentar;
@@ -17,7 +20,7 @@ public class JuegoAdivinanzas {
 			if (intentar == valor) {
 				adivinado = true;
 			} else if (intentar > valor) {
-				System.out.println("El numero es menor al sugerido.");
+				System.out.println(MENSAJE_NUMERO_MENOR);
 			} else if (intentar < valor) {
 				System.out.println("El numero es mayor al sugerido.");
 			}
