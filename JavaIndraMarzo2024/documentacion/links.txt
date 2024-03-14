@@ -1,6 +1,9 @@
 https://stackoverflow.com/questions/5669762/eclipse-large-toolbar-icons
 https://refactoring.guru/es/refactoring/smells
 https://projectlombok.org/
+https://martinfowler.com/
+https://martinfowler.com/eaaCatalog/index.html
+https://martinfowler.com/eaaCatalog/layerSupertype.html
 
 Libros:
 https://www.amazon.com/Code-smells-Predictor-Remarkable-Improvement/dp/6203202150
