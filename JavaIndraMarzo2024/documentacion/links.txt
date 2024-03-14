@@ -4,3 +4,4 @@ https://projectlombok.org/
 
 Libros:
 https://www.amazon.com/Code-smells-Predictor-Remarkable-Improvement/dp/6203202150
+https://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional-ebook/dp/B000SEIBB8
