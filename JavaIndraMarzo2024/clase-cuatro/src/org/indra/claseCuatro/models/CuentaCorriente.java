@@ -21,20 +21,21 @@ public class CuentaCorriente extends Cuenta {
     }
     
     @Override
-    public void depositar(double cantidad) {
+    public void depositar(OrigenDinero origen,double cantidad) {
         if (cantidad <= 0) {
             throw new Error("La cantidad debe ser positiva.");
         }
         
-        if (cantidad > maximo) {
+        if (cantidad  + this.getSaldo() > maximo) {
             throw new Error("La cantidad no puede superar el maximo.");
         }
         
-        this.movimientos.add(new Movimiento(cantidad, TipoDeMovimiento.Entrada));
+        //Vamos a cambiar esto en breve lo del null
+        this.movimientos.add(new Movimiento(cantidad, origen, this));
     }
     
     @Override
-    public void extraer(double cantidad) throws SaldoInsuficienteException {
+    public void extraer(DestinoDinero destino, double cantidad) throws SaldoInsuficienteException {
         if (cantidad <= 0) {
             throw new Error("La cantidad debe ser positiva.");
         }
@@ -43,7 +44,7 @@ public class CuentaCorriente extends Cuenta {
         	throw new SaldoInsuficienteException();
         }
         
-        this.movimientos.add(new Movimiento(cantidad, TipoDeMovimiento.Salida));
+        this.movimientos.add(new Movimiento(cantidad, this, destino));
         
     }
 

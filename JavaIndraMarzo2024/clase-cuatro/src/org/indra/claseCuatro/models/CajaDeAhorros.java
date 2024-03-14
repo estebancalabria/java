@@ -8,16 +8,16 @@ public class CajaDeAhorros extends Cuenta {
 	}
 
 	@Override
-	public void depositar(double monto) {
+	public void depositar(OrigenDinero origen, double monto) {
 		if (monto<0) {
 			throw new Error("El monto debe ser positivo");
 		}
 		
-        this.movimientos.add(new Movimiento(monto,TipoDeMovimiento.Entrada));		
+        this.movimientos.add(new Movimiento(monto,origen, this));		
 	}
 
 	@Override
-	public void extraer(double monto) throws SaldoInsuficienteException {
+	public void extraer(DestinoDinero destino, double monto) throws SaldoInsuficienteException {
 		if (monto<0) {
 			throw new Error("El monto debe ser positivo");
 		}
@@ -26,7 +26,7 @@ public class CajaDeAhorros extends Cuenta {
         	throw new SaldoInsuficienteException();
         }
         
-        this.movimientos.add(new Movimiento(monto,TipoDeMovimiento.Salida));
+        this.movimientos.add(new Movimiento(monto,this, destino));
         		
 	}
 

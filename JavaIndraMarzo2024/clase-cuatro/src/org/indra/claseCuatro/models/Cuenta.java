@@ -3,7 +3,7 @@ package org.indra.claseCuatro.models;
 import java.time.*;
 import java.util.*;
 
-public abstract class Cuenta  extends ObjetoDeNegocio {
+public abstract class Cuenta  extends ObjetoDeNegocio implements OrigenDinero, DestinoDinero {
 
 	private static int ULTIMO_NUMERO_CUENTA = 0;
 	private int numeroDeCuenta;
@@ -41,11 +41,11 @@ public abstract class Cuenta  extends ObjetoDeNegocio {
 	}
 
 	public double getSaldo() {
-		//Se animan a programarlo uds?
+		//Se animan a corregirlo uds?
 		double saldo = 0;
 		
 		for(Movimiento m : movimientos) {
-            if(m.getTipo() == TipoDeMovimiento.Entrada) {
+            if(m.getDestino() == this) {
                 saldo = saldo + m.getValor();
             } else {
                 saldo = saldo - m.getValor();
@@ -54,8 +54,8 @@ public abstract class Cuenta  extends ObjetoDeNegocio {
 		return saldo;
 	}
 	
-	public abstract void depositar(double monto);
+	public abstract void depositar(OrigenDinero origen, double monto);
 	
-	public abstract void extraer(double monto) throws SaldoInsuficienteException;
+	public abstract void extraer(DestinoDinero destino, double monto) throws SaldoInsuficienteException;
 	
 }
