@@ -1,10 +1,20 @@
 https://stackoverflow.com/questions/5669762/eclipse-large-toolbar-icons
+https://docs.oracle.com/javase/8/docs/api/java/time/package-frame.html
 https://refactoring.guru/es/refactoring/smells
 https://projectlombok.org/
 https://martinfowler.com/
 https://martinfowler.com/eaaCatalog/index.html
-https://martinfowler.com/eaaCatalog/layerSupertype.html
+https://medium.com/groupon-eng/dependency-injection-in-java-9e9438aa55ae
+
 
 Libros:
-https://www.amazon.com/Code-smells-Predictor-Remarkable-Improvement/dp/6203202150
-https://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional-ebook/dp/B000SEIBB8
+  https://www.amazon.com/Code-smells-Predictor-Remarkable-Improvement/dp/6203202150
+  https://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional-ebook/dp/B000SEIBB8
+  https://martinfowler.com/books/eaa.html  
+
+
+Patrones
+Patrones Disenio
+    https://refactoring.guru/design-patterns/builder
+Patrones de Arquitectura
+    https://martinfowler.com/eaaCatalog/layerSupertype.html
