@@ -25,23 +25,26 @@ public class ClienteFileRepository implements ClienteRepository {
 		}
 		
 		
-		FileReader reader = new FileReader(file);
-		BufferedReader readerMejor = new BufferedReader(reader);
-		
-		
-		Cliente c = Cliente
-				.builder()
-				.withId(Integer.parseInt(readerMejor.readLine()))
-				.withDni(Integer.parseInt(readerMejor.readLine()))
-                .withNombre(readerMejor.readLine())
-                .withApellido(readerMejor.readLine())
-                .withFechaNacimiento(LocalDate.parse(readerMejor.readLine()))
-				.build();
-		
-		
-		//readerMejor.readLine();
-		
-		return c;
+		//try-with-resourcees
+		try (FileReader reader = new FileReader(file)){
+			BufferedReader readerMejor = new BufferedReader(reader);
+			
+			
+			Cliente c = Cliente
+					.builder()
+					.withId(Integer.parseInt(readerMejor.readLine()))
+					.withDni(Integer.parseInt(readerMejor.readLine()))
+	                .withNombre(readerMejor.readLine())
+	                .withApellido(readerMejor.readLine())
+	                .withFechaNacimiento(LocalDate.parse(readerMejor.readLine()))
+					.build();
+			
+			
+			//readerMejor.readLine();
+			
+			
+			return c;
+		}
 	}
 	
 	public void save(Cliente c) throws Exception {
@@ -61,17 +64,19 @@ public class ClienteFileRepository implements ClienteRepository {
 		c.setId(id);
 		
 		
-		//Este es para grabar caracter por caracter
-		FileWriter writer = new FileWriter("clientes\\" + id);
-		//BufferedWriter w = new BufferedWriter(writer)
-		PrintWriter printWriter = new PrintWriter (writer);
-		printWriter.println(c.getId());
-		printWriter.println(c.getDni());
-		printWriter.println(c.getNombre());
-		printWriter.println(c.getApellido());
-		printWriter.println(c.getFechaNacimiento().toString());
+		//FileWritter Este es para grabar caracter por caracter
+		//try-with-resourcees
+		try (FileWriter writer = new FileWriter("clientes\\" + id)){
+			//BufferedWriter w = new BufferedWriter(writer)
+			PrintWriter printWriter = new PrintWriter (writer);
+			printWriter.println(c.getId());
+			printWriter.println(c.getDni());
+			printWriter.println(c.getNombre());
+			printWriter.println(c.getApellido());
+			printWriter.println(c.getFechaNacimiento().toString());
+		}
 		
-		writer.close();
+		//writer.close();
 		
 	}
 	
