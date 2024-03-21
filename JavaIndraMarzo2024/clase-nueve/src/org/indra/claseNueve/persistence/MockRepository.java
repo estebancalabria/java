@@ -7,28 +7,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CarMockRepository implements Repository<Car> {
-    private Map<Integer, Car> carMap;
+public class MockRepository<T extends BusinessObject> implements Repository<T> {
+    private Map<Integer, T> carMap;
     private int nextId;
 
-    public CarMockRepository() {
+    public MockRepository() {
         carMap = new HashMap<>();
         nextId = 1;
     }
 
     @Override
-    public void save(Car car) throws PersistenceException {
+    public void save(T car) throws PersistenceException {
         carMap.put(nextId, car);
         car.setId(nextId++);
     }
 
     @Override
-    public void update(Car car) throws PersistenceException {
+    public void update(T car) throws PersistenceException {
         carMap.put(car.getId(), car);
     }
 
     @Override
-    public void delete(Car car) throws PersistenceException {
+    public void delete(T car) throws PersistenceException {
         carMap.remove(car.getId());
     }
 
@@ -38,12 +38,12 @@ public class CarMockRepository implements Repository<Car> {
     }
 
     @Override
-    public Car findById(int id) throws PersistenceException {
+    public T findById(int id) throws PersistenceException {
         return carMap.get(id);
     }
 
     @Override
-    public List<Car> findAll() throws PersistenceException {
+    public List<T> findAll() throws PersistenceException {
         return new ArrayList<>(carMap.values());
     }
 }
