@@ -5,16 +5,25 @@ https://projectlombok.org/
 https://martinfowler.com/
 https://martinfowler.com/eaaCatalog/index.html
 https://medium.com/groupon-eng/dependency-injection-in-java-9e9438aa55ae
+https://mvnrepository.com/
+https://digma.ai/9-best-java-profilers-to-use-in-2024/#what-is-a-java-profiler
 
 
 Libros:
   https://www.amazon.com/Code-smells-Predictor-Remarkable-Improvement/dp/6203202150
   https://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional-ebook/dp/B000SEIBB8
-  https://martinfowler.com/books/eaa.html  
+  https://martinfowler.com/books/eaa.html
+  https://www.amazon.com/Refactoring-Patterns-Joshua-Kerievsky/dp/0321213351  
 
 
 Patrones
 Patrones Disenio
+    https://refactoring.guru/design-patterns/singleton
     https://refactoring.guru/design-patterns/builder
+    https://refactoring.guru/design-patterns/template-method
 Patrones de Arquitectura
     https://martinfowler.com/eaaCatalog/layerSupertype.html
+
+
+Herramientas
+   https://www.sqlite.org/

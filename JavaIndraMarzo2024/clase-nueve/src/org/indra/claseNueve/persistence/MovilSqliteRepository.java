@@ -7,9 +7,65 @@ import java.util.List;
 
 import org.indra.claseNueve.models.Movil;
 
-public class MovilSqliteRepository implements Repository<Movil> {
+import lombok.SneakyThrows;
 
-    private String CONNECTION_STRING = "jdbc:sqlite:demo.db";
+public class MovilSqliteRepository extends SqliteRepository<Movil> {
+
+	public MovilSqliteRepository() throws PersistenceException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public MovilSqliteRepository(String fileName) throws PersistenceException {
+		super(fileName);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected String getQueryCrearTabla() {
+		// TODO Auto-generated method stub
+		return """
+                CREATE TABLE IF NOT EXISTS Movil (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Marca TEXT NOT NULL,
+                Tamaño INTEGER NOT NULL)
+            """;
+	}
+
+	@Override
+	protected String getInsertQuery() {
+		// TODO Auto-generated method stub
+		return "INSERT INTO Movil (Marca, Tamaño) values (?,?)";
+	}
+
+	@Override
+	protected String getSelect() {
+		// TODO Auto-generated method stub
+		return "SELECT * FROM Movil";
+	}
+
+	@Override
+	protected Movil createModel() {
+		// TODO Auto-generated method stub
+		return new Movil();
+	}
+
+	@Override @SneakyThrows
+	protected void setInsertParameters(Movil model, PreparedStatement insert) {
+        insert.setString(1, model.getMarca());
+        insert.setInt(2, model.getTamaño());
+		
+	}
+
+	@Override @SneakyThrows
+	protected void fillModelFromResultSet(Movil model, ResultSet result) {
+        model.setId(result.getInt("id"));
+        model.setMarca(result.getString("marca"));
+        model.setTamaño(result.getInt("tamaño"));
+		
+	}
+
+    /*private String CONNECTION_STRING = "jdbc:sqlite:demo.db";
 
     private void crearBaseDeDatos() throws PersistenceException {
         try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
@@ -99,5 +155,5 @@ public class MovilSqliteRepository implements Repository<Movil> {
         } catch (SQLException e) {
             throw new PersistenceException("Error al recuperar todos los móviles", e);
         }
-    }
+    }*/
 }
