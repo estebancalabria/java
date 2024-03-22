@@ -1,26 +1,31 @@
 package org.indra.claseNueve.services;
 
 import org.indra.claseNueve.dto.RegistrationData;
-import org.indra.claseNueve.models.*;
+import org.indra.claseNueve.models.Car;
+import org.indra.claseNueve.models.Movil;
 import org.indra.claseNueve.persistence.Repository;
 
 import lombok.SneakyThrows;
 
-public class RegistrationService_ConstructorDependencyInjection {
+public class RegistrationService_SetterDependecyInjection {
+	
+	//Desventaja : Si agrego otro repositorio (si necesito otro repositorio en el futuro)
+	//tiene que cambiar el codigo de tiempo de configuracion que se tea el repositorio nuevo
+	//tiene que cambiar el codigo de afuera
 	
 	private Repository<Car> repoAuto = null;
 	private Repository<Movil> repoMovil = null;
-	
-	//Contra. Que si el servicio necesita usar otro repositorio tengo que agregar otro parametro al constructor
-	//Constructores telescopicos
-	public RegistrationService_ConstructorDependencyInjection(Repository<Car> repoAuto,
-		      Repository<Movil> repoMovil) {
-	    this.repoAuto = repoAuto;
-	    this.repoMovil = repoMovil;
-	  }
-	
+
+	public void setRepoAuto(Repository<Car> repoAuto) {
+		this.repoAuto = repoAuto;
+	}
+
+	public void setRepoMovil(Repository<Movil> repoMovil) {
+		this.repoMovil = repoMovil;
+	}
 
 	@SneakyThrows
+	//Podria llamarse registerAll()
 	public void registerCarAndMobile(RegistrationData data) {
 		//Registra el auto y el movil
         Car car = new Car();
