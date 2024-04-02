@@ -1,7 +1,7 @@
 package org.indra.claseOnce;
 
 import org.indra.claseOnce.persistence.*;
-import org.indra.claseOnce.services.PersonajeService;
+import org.indra.claseOnce.services.*;
 import org.indra.claseOnce.models.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -26,7 +26,7 @@ public class Program {
 		System.out.println(personaje.getNombre());*/
 		
 		@SuppressWarnings("unchecked")
-		PersonajeService service = (PersonajeService)context.getBean("servicePersonaje");
+		PersonajeServiceInterface service = (PersonajeServiceInterface)context.getBean("servicePersonaje");
 		service.registrarPersonaje("Xavier");
 		
 		Personaje p = service.recuperar(1);

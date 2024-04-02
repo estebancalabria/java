@@ -4,9 +4,16 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="repositoryPersonaje" class="org.indra.claseOnce.persistence.PersonajeRepository" />
+	<bean id="consoleLogger" class="org.indra.claseOnce.logging.ConsoleLogger" />
 
-    <bean id="servicePersonaje" class="org.indra.claseOnce.services.PersonajeService" >
-    	<property name="repository" ref="repositoryPersonaje" />
+	<bean id="repositoryPersonaje" class="org.indra.claseOnce.persistence.PersonajeRepository" />
+	
+	<bean id="servicePersonajeImplementation" class="org.indra.claseOnce.services.PersonajeService" >
+		<property name="repository" ref="repositoryPersonaje" />
+	</bean>
+
+    <bean id="servicePersonaje" class="org.indra.claseOnce.services.PersonajeServiceLoggingProxy" >
+    	<property name="logger" ref="consoleLogger" />
+    	<property name="objetoConcreto" ref="servicePersonajeImplementation" />
     </bean>	
 </beans>
