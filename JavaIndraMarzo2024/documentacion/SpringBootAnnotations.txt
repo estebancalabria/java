@@ -1,0 +1,29 @@
+Clase
+  @RestController : Una clase cuyos metodos se invocan mediante un navegador como Chrome mediante peticiones HTTP
+  @Service
+  @Entity  : Indica que es una clase de negocios de nuestro modelo
+
+Atributo
+  @Autowired
+
+Metodos
+  @RequestMapping(value,method) : M
+  @GetMapping : Idem @RequestMapping(value, RequestMethod.GET) 
+  @PostMapping("/api/accion") 
+  @DeleteMapping
+  @PutMapping
+
+Parametros
+  @RequestParam(value)
+  @PathVariable(value)
+  @RequestBody
+
+Retorno
+  ResponseEntity<>
+
+Anotaciones Hibernate
+	Clase
+		@Table(name="Accion") : Dice en que tabla se guardan los objetos de esta clase
+	Atributos
+		@Column(name="simbolo") : Dice en que campo de la bd se guarda
+		@Id : Especifica que el atributo es la clave primaria
