@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: claseQuince
+  profiles:
+    active: prod
+server:
+  port: 5000

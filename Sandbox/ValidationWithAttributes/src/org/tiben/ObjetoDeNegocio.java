@@ -14,7 +14,7 @@ public class ObjetoDeNegocio {
 				field.setAccessible(true);
 				try {
 					Object value = field.get(this);
-					if ((value == null) || isEmptyString(value))) {
+					if ((value == null) || isEmptyString(value)) {
 						Requerido annotation = field.getAnnotation(Requerido.class);
 						throw new Error(annotation.mensaje() + ": " + field.getName());
 					}

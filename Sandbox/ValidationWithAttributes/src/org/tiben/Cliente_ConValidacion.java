@@ -1,6 +1,6 @@
 package org.tiben;
 
-public class Cliente {
+public class Cliente_ConValidacion {
 	
 	private String nombre;
 	//...
