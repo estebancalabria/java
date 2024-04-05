@@ -1,12 +1,19 @@
-https://stackoverflow.com/questions/5669762/eclipse-large-toolbar-icons
-https://docs.oracle.com/javase/8/docs/api/java/time/package-frame.html
-https://refactoring.guru/es/refactoring/smells
-https://projectlombok.org/
-https://martinfowler.com/
-https://martinfowler.com/eaaCatalog/index.html
-https://medium.com/groupon-eng/dependency-injection-in-java-9e9438aa55ae
-https://mvnrepository.com/
-https://digma.ai/9-best-java-profilers-to-use-in-2024/#what-is-a-java-profiler
+Articulos
+   https://stackoverflow.com/questions/5669762/eclipse-large-toolbar-icons
+   https://docs.oracle.com/javase/8/docs/api/java/time/package-frame.html
+   https://refactoring.guru/es/refactoring/smells
+   https://projectlombok.org/
+   https://martinfowler.com/
+   https://martinfowler.com/eaaCatalog/index.html
+   https://medium.com/groupon-eng/dependency-injection-in-java-9e9438aa55ae
+   https://mvnrepository.com/ 
+   https://digma.ai/9-best-java-profilers-to-use-in-2024/#what-is-a-java-profiler
+   https://peterbeukema.medium.com/top-10-cross-cutting-concerns-4cf30f7ab7fa
+   https://medium.com/@PabloLeonPsi/una-aproximaci%C3%B3n-a-la-programaci%C3%B3n-orientada-a-aspectos-a62d377ebe79
+   https://www.blackbox.ai/
+   https://start.spring.io/
+   https://hibernate.org/
+   https://site.mockito.org/
 
 
 Libros:

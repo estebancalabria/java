@@ -2,6 +2,7 @@ package org.indra.claseTrece;
 
 import org.indra.claseTrece.models.Accion;
 import org.indra.claseTrece.repositories.AccionRepository;
+import org.indra.claseTrece.services.AccionService;
 import org.indra.claseTrece.services.CrudService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +25,8 @@ public class AccionServiceTest {
 	
 	@Autowired
 	@InjectMocks
-	CrudService<String, Accion> service;
-	
+	//CrudService<String, Accion> service;
+S	
 	@Test
 	void testFindById() {
 		when(repository.findById("LTR")).thenReturn(Optional.of(new Accion() {{
