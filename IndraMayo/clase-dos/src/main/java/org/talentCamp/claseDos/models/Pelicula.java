@@ -1,27 +1,17 @@
 package org.talentCamp.claseDos.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pelicula extends ObjetoDeNegocio {
+
+    @Getter @Setter
     private String nombre;
+    @Getter @Setter
     private String genero;
 
-    public Pelicula(String genero, String nombre) {
-        this.genero = genero;
-        this.nombre = nombre;
-    }
-
-    public String getGenero() {
-        return genero;
-    }
-
-    public void setGenero(String genero) {
-        this.genero = genero;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
 }

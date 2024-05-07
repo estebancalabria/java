@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface PeliculaService {
     List<Pelicula> obtenerTodas();
-    Pelicula obtenerPorId(int id);
+    Pelicula obtenerPorId(int id) throws NotFoundServiceException;
     void registrarPelicula(Pelicula pelicula);
-    void borrarPelicula(int id);
-    void actualizarPelicula(Pelicula pelicula);
+    void borrarPelicula(int id)  throws NotFoundServiceException;
+    void actualizarPelicula(Pelicula pelicula) throws NotFoundServiceException;
 }

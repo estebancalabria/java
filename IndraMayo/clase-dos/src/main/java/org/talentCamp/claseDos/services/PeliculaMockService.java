@@ -37,9 +37,18 @@ public class PeliculaMockService implements PeliculaService {
     }
 
     @Override
-    public Pelicula obtenerPorId(int id) {
+    public Pelicula obtenerPorId(int id) throws NotFoundServiceException {
         //Version labbda
-        return this.peliculas.stream().filter(p -> p.getId() == id).findFirst().orElseThrow();
+
+        //Esta opcion lanza un NoSuchElementException que es de Java
+        /*return this.peliculas.stream().filter(p -> p.getId() == id)
+                .findFirst()
+                .orElseThrow();*/
+
+        //Utilizo una excepcion personalizada
+        return this.peliculas.stream().filter(p -> p.getId() == id)
+                .findFirst()
+                .orElseThrow(NotFoundServiceException::new);
 
         /*for (Pelicula p : this.peliculas){
             if (p.getId()==id){
@@ -71,13 +80,13 @@ public class PeliculaMockService implements PeliculaService {
     }
 
     @Override
-    public void borrarPelicula(int id) {
+    public void borrarPelicula(int id) throws NotFoundServiceException{
         Pelicula pelicula = this.obtenerPorId(id);
         this.peliculas.remove(pelicula);
     }
 
     @Override
-    public void actualizarPelicula(Pelicula pelicula) {
+    public void actualizarPelicula(Pelicula pelicula) throws NotFoundServiceException {
         Pelicula p = this.obtenerPorId(pelicula.getId());
         p.setGenero(pelicula.getGenero());
         p.setNombre(pelicula.getNombre());

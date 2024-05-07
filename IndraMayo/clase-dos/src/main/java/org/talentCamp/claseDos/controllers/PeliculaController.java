@@ -8,9 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import org.talentCamp.claseDos.models.Pelicula;
+import org.talentCamp.claseDos.services.NotFoundServiceException;
 import org.talentCamp.claseDos.services.PeliculaService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 public class PeliculaController {
@@ -39,13 +41,21 @@ public class PeliculaController {
 
     @DeleteMapping("/api/pelicula/{id}")
     @CrossOrigin("http://localhost:4200")
-    public ResponseEntity<Boolean> delete(@PathVariable("id") int id){
-        try{
+    public ResponseEntity<Boolean> delete(@PathVariable("id") int id) throws NotFoundServiceException {
+       // try{
             this.service.borrarPelicula(id);
+            System.out.println("Existe" +  id);
             return ResponseEntity.ok(true);
-        } catch (Exception e) {
+        /*} catch (Exception e) {
+            System.out.println("No existe" + id);
             //return ResponseEntity.notFound().build();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        }*/
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public  ResponseEntity<String> handleElementoNoEncontrado(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Elemento no encontrado");
     }
 }
