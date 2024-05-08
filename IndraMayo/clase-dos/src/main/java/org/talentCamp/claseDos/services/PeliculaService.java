@@ -1,5 +1,6 @@
 package org.talentCamp.claseDos.services;
 
+import jakarta.validation.Valid;
 import org.talentCamp.claseDos.models.Pelicula;
 
 import java.util.List;

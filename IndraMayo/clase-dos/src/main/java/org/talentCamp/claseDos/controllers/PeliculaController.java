@@ -1,5 +1,6 @@
 package org.talentCamp.claseDos.controllers;
 
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,16 @@ public class PeliculaController {
 
     @CrossOrigin("http://localhost:4200")
     @PostMapping("/api/pelicula")
-    public Pelicula add(@RequestBody() Pelicula pelicula){
+    public Pelicula add(@Valid @RequestBody() Pelicula pelicula){
         System.out.println(pelicula.getNombre());
-        if ((pelicula.getNombre()==null) || (pelicula.getNombre().trim().length()==0)){
+
+        //Esta validacion la mandamos al objeto de negocio
+        /*if ((pelicula.getNombre()==null) || (pelicula.getNombre().trim().length()==0)){
             throw new Error("Falta el nombre");
-        }
+        }*/
 
         this.service.registrarPelicula(pelicula);
-        System.out.println(pelicula.getId());
+        //System.out.println(pelicula.getId());
         return pelicula;
     }
 
@@ -53,9 +56,10 @@ public class PeliculaController {
         }*/
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
+    //Probemos el ControllerAdvice
+    /*@ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public  ResponseEntity<String> handleElementoNoEncontrado(){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Elemento no encontrado");
-    }
+    }*/
 }
