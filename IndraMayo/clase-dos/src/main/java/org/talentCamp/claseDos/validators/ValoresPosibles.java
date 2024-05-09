@@ -1,5 +1,5 @@
 package org.talentCamp.claseDos.validators;
-    
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
