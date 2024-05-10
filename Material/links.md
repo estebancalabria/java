@@ -12,6 +12,8 @@
 
 * Map Struct
 	https://mapstruct.org/
+* Model Mapper
+	* https://modelmapper.org/  (Alternativa a MapStruct)
 
 ## Base de Datos
 
