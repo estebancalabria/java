@@ -10,7 +10,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "Songs")
+@Table(name = "Songs",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"title","artist"}))
+@ToString
 public class Cancion {
 
     @Getter
@@ -21,7 +23,7 @@ public class Cancion {
 
     @Getter
     @Setter
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false/*, unique = true*/)
     private String titulo;
 
     @Getter

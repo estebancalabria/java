@@ -1,12 +1,17 @@
 package org.talentCamp.claseUnoSpringData.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.talentCamp.claseUnoSpringData.dto.CancionDTO;
+import org.talentCamp.claseUnoSpringData.dto.CancionMapper;
 import org.talentCamp.claseUnoSpringData.models.Cancion;
 import org.talentCamp.claseUnoSpringData.services.CancionService;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 @RestController
@@ -15,66 +20,79 @@ public class CancionController {
     @Autowired
     private CancionService service;
 
+    @GetMapping("/api/cancion/testMapper")
+    public ResponseEntity<Object> testMapper() {
+        CancionDTO aveMaria =
+                CancionDTO
+                        .builder()
+                        .id(12)
+                        .nombre("Ave Naria")
+                        .compositor("David Bisbal")
+                        .año(LocalDate.now())
+                        .duracion(120).build();
+
+
+        System.out.println("------------");
+        System.out.println(aveMaria);
+
+        Cancion convertida = CancionMapper.INSTANCE.fromDto(aveMaria);
+        System.out.println("------------");
+        System.out.println(convertida);
+
+        return ResponseEntity.ok("Mia la consola a er si funciono");
+    }
+
     //Deberia ser un Post pero hago un get para probarlo desde el navegador
     @GetMapping("/api/cancion/test")
-    public ResponseEntity<Object> test(){
+    public ResponseEntity<Object> test() {
 
-        Cancion aveMaria = Cancion.builder()
-                .titulo("Ave Naria")
-                .artista("David Bisbal")
-                .fecha(LocalDate.of(2002,3,1))
-                .duracionSegundos(120)
+        CancionDTO aveMaria = CancionDTO.builder()
+                .nombre("Ave Naria")
+                .compositor("David Bisbal")
+                .año(LocalDate.of(20002, Month.JANUARY,1))
+                .duracion(120)
                 .build();
 
-        Cancion fiestaPagana = Cancion.builder()
-                .titulo("Fiesta Pagana")
-                .artista("Mago de Oz")
-                .fecha(LocalDate.of(2005,3,1))
-                .duracionSegundos(240)
+        CancionDTO fiestaPagana = CancionDTO.builder()
+                .nombre("Fiesta Pagana")
+                .compositor("Mago de Oz")
+                .año(LocalDate.of(2010, Month.JANUARY, 1))
+                .duracion(240)
                 .build();
 
-        Cancion unaCalleEnParis = Cancion.builder()
-                .titulo("Una Calle en Paris")
-                .artista("Duncan dhu")
-                .fecha(LocalDate.of(1988,3,1))
-                .duracionSegundos(340)
-                .build();
-
-        Cancion thuderstruck = Cancion.builder()
-                .titulo("Thuderstruck")
-                .artista("ACDC")
-                .fecha(LocalDate.of(1995,3,1))
-                .duracionSegundos(240)
+        CancionDTO unaCalleEnParis = CancionDTO.builder()
+                .nombre("Una Calle en Paris")
+                .compositor("Duncan dhu")
+                .año(LocalDate.of(1987, Month.JANUARY,1))
+                .duracion(340)
                 .build();
 
         if ((long) this.service.recuperarTodos().size() == 0) {
             this.service.registrarNuevo(aveMaria);
             this.service.registrarNuevo(fiestaPagana);
             this.service.registrarNuevo(unaCalleEnParis);
-            this.service.registrarNuevo(thuderstruck);
         }
-
 
         return ResponseEntity.ok().body("Canciones agregdas");
     }
 
     @GetMapping("/api/cancion")
-    public ResponseEntity<List<Cancion>> getTodas(){
+    public ResponseEntity<List<CancionDTO>> getTodas() {
         return ResponseEntity.ok().body(this.service.recuperarTodos());
     }
 
     @GetMapping("/api/cancion/{id}")
-    public ResponseEntity<Cancion> getCancion(@PathVariable int id){
+    public ResponseEntity<CancionDTO> getCancion(@PathVariable int id) {
         return ResponseEntity.ok().body(this.service.recuperarPorId(id));
     }
 
     @PostMapping("/api/cancion")
-    public ResponseEntity<Cancion> agregarCancion(@RequestBody Cancion cancion){
-       return ResponseEntity.ok().body(this.service.registrarNuevo(cancion));
+    public ResponseEntity<CancionDTO> agregarCancion(@RequestBody @Valid CancionDTO cancion) {
+        return ResponseEntity.ok().body(this.service.registrarNuevo(cancion));
     }
 
     @PutMapping("/api/cancion")
-    public ResponseEntity<Cancion> actualizarCancion(@RequestBody Cancion cancion){
+    public ResponseEntity<CancionDTO> actualizarCancion(@RequestBody @Valid CancionDTO cancion) {
         return ResponseEntity.ok().body(this.service.actualizar(cancion));
     }
 
