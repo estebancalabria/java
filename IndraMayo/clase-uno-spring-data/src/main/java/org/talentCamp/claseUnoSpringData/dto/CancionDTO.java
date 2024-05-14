@@ -8,6 +8,7 @@ import lombok.*;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 //Ejemplo Bien Jorge: En la base de datos tengo una fecha de creacion y no quiero exponerla
 //Quiero que la interfaz se llamen distinto
@@ -33,4 +34,6 @@ public class CancionDTO extends Dto{
 
     @PastOrPresent
     private LocalDate año;
+
+    private String puntuacion;
 }

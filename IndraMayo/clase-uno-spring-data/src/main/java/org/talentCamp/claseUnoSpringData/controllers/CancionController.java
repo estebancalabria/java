@@ -1,18 +1,23 @@
 package org.talentCamp.claseUnoSpringData.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.talentCamp.claseUnoSpringData.dto.CancionDTO;
 import org.talentCamp.claseUnoSpringData.dto.CancionMapper;
 import org.talentCamp.claseUnoSpringData.models.Cancion;
+import org.talentCamp.claseUnoSpringData.repositories.CancionRepository;
 import org.talentCamp.claseUnoSpringData.services.CancionService;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class CancionController {
@@ -39,10 +44,11 @@ public class CancionController {
         System.out.println("------------");
         System.out.println(convertida);
 
-        return ResponseEntity.ok("Mia la consola a er si funciono");
+        return ResponseEntity.ok("Mira la consola a er si funciono");
     }
 
-    //Deberia ser un Post pero hago un get para probarlo desde el navegador
+
+        //Deberia ser un Post pero hago un get para probarlo desde el navegador
     @GetMapping("/api/cancion/test")
     public ResponseEntity<Object> test() {
 
@@ -81,13 +87,27 @@ public class CancionController {
         return ResponseEntity.ok().body(this.service.recuperarTodos());
     }
 
+    @GetMapping(value = "/api/cancion", params = "hastaDuracion")
+    //@GetMapping("/api/cancion/cortas")
+    public ResponseEntity<List<CancionDTO>> getCortas(@RequestParam("hastaDuracion") int max) {
+        //return ResponseEntity.ok().body(this.service.recuperarCancionesMenosDe(340));
+        return ResponseEntity.ok().body(this.service.recuperarCancionesMenosDe(max));
+    }
+
     @GetMapping("/api/cancion/{id}")
     public ResponseEntity<CancionDTO> getCancion(@PathVariable int id) {
         return ResponseEntity.ok().body(this.service.recuperarPorId(id));
     }
 
+    @PostMapping("/api/cancion/{id}/puntuar/{nota}")
+    public ResponseEntity<Object> puntuarCancion(@PathVariable int id,
+                                                     @Min(1) @Max(10) @PathVariable int nota) {
+        this.service.puntuarCancion(id, nota);
+        return ResponseEntity.ok().body(Map.of("resultado", "Puntuacion Recibida. Gracias por puntuar."));
+    }
+
     @PostMapping("/api/cancion")
-    public ResponseEntity<CancionDTO> agregarCancion(@RequestBody @Valid CancionDTO cancion) {
+    public ResponseEntity<CancionDTO> agregarCancion(@RequestBody CancionDTO cancion) {
         return ResponseEntity.ok().body(this.service.registrarNuevo(cancion));
     }
 

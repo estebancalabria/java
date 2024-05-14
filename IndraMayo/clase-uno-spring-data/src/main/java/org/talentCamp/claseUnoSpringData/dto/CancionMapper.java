@@ -10,13 +10,14 @@ public interface CancionMapper {
     CancionMapper INSTANCE = Mappers.getMapper( CancionMapper.class );
 
     @Mapping(target = "nombre", source = "titulo")
-    @Mapping(target = "compositor", source = "artista")
+    @Mapping(target = "compositor", source = "artista.nombre")
     @Mapping(target = "duracion", source = "duracionSegundos")
     @Mapping(target = "año", source = "fecha")
+    @Mapping(target = "puntuacion", source = "puntuacionAsString")
     CancionDTO toDto(Cancion cancion);
 
     @Mapping(target = "titulo", source = "nombre")
-    @Mapping(target = "artista", source = "compositor")
+    @Mapping(target = "artista.nombre", source = "compositor")
     @Mapping(target = "duracionSegundos", source = "duracion")
     @Mapping(target = "fecha", source = "año")
     Cancion fromDto(CancionDTO dto);

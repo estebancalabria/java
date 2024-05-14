@@ -5,18 +5,20 @@ import org.springframework.stereotype.Service;
 import org.talentCamp.claseUnoSpringData.dto.CancionDTO;
 import org.talentCamp.claseUnoSpringData.dto.CancionMapper;
 import org.talentCamp.claseUnoSpringData.models.Cancion;
+import org.talentCamp.claseUnoSpringData.models.Puntuacion;
+import org.talentCamp.claseUnoSpringData.repositories.ArtistaRepository;
 import org.talentCamp.claseUnoSpringData.repositories.CancionRepository;
 
 import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
 @Service
 public class CancionService implements CrudService<CancionDTO, Integer> {
 
     @Autowired
-    private CancionRepository repo;
+    private CancionRepository cancionRepo;
+    @Autowired
+    private ArtistaRepository artistaRepo;
 
     private CancionMapper mapper = CancionMapper.INSTANCE;
     /*private CancionDTO toDto(Cancion c) {
@@ -55,21 +57,32 @@ public class CancionService implements CrudService<CancionDTO, Integer> {
     @Override
     public List<CancionDTO> recuperarTodos() {
         //Mapeo...
-        return this.repo.findAll().stream().map(mapper::toDto).toList();
+        return this.cancionRepo.findAll().stream().map(mapper::toDto).toList();
     }
 
     @Override
     public CancionDTO recuperarPorId(Integer id) {
-        return mapper.toDto(this.repo.findById(id).orElseThrow());
+        return mapper.toDto(this.cancionRepo.findById(id).orElseThrow());
+    }
+
+    public List<CancionDTO> recuperarCancionesMenosDosMinutos(){
+        //return this.cancionRepo.cancionesMenosDosMinutos().stream().map(mapper::toDto).toList();
+        return this.cancionRepo.cancionesMenosDosMinutos().stream().map(mapper::toDto).toList();
+    }
+
+    public List<CancionDTO> recuperarCancionesMenosDe(int maxDuracion){
+        return this.cancionRepo.cancionesMenosDuracionQue(maxDuracion).stream().map(mapper::toDto).toList();
     }
 
     @Override
     public CancionDTO registrarNuevo(CancionDTO nuevo) {
-        if (this.repo.findAll()
+
+        //Validar que no este repetido
+        if (this.cancionRepo.findAll()
                 .stream()
                 .anyMatch(c ->
                         c.getTitulo().equals(nuevo.getNombre().trim())
-                        && c.getArtista().equals(nuevo.getCompositor().trim()))){
+                        && c.getArtista().getNombre().equals(nuevo.getCompositor().trim()))){
 
             throw new ServiceValidationException(
                     MessageFormat.format(
@@ -78,18 +91,34 @@ public class CancionService implements CrudService<CancionDTO, Integer> {
                             nuevo.getCompositor()));
         }
 
-        Cancion registrado = this.repo.save(mapper.fromDto(nuevo));
+        Cancion nueva = mapper.fromDto(nuevo);
+        this.artistaRepo.save(nueva.getArtista());
+        Cancion registrado = this.cancionRepo.save(nueva);
         return mapper.toDto(registrado);
     }
 
     @Override
     public CancionDTO actualizar(CancionDTO existente) {
-        this.repo.save(mapper.fromDto(existente));
+        this.cancionRepo.save(mapper.fromDto(existente));
         return existente;
     }
 
     @Override
     public void borrar(Integer id) {
-        this.repo.deleteById(id);
+        this.cancionRepo.deleteById(id);
+    }
+
+    public void puntuarCancion(int id, int puntuacion ) {
+        Cancion cancion = this.cancionRepo.findById(id).orElseThrow();
+
+        cancion.getPuntuaciones().add(
+                Puntuacion
+                        .builder()
+                        .valor(puntuacion)
+                        .cancion(cancion)
+                        .build());
+
+        System.out.println(cancion); //Stack Overflow
+        this.cancionRepo.save(cancion);
     }
 }
