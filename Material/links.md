@@ -14,6 +14,8 @@
 	https://mapstruct.org/
 * Model Mapper
 	* https://modelmapper.org/  (Alternativa a MapStruct)
+ * Mockito
+  	* https://site.mockito.org/
 
 ## Base de Datos
 
