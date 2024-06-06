@@ -2,32 +2,37 @@ package org.minsterioEconomia.claseTres.tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import org.ministerioEconomia.claseTres.Edad;
 
 class CondicionalesTests {
 
 	@Test
 	void testAnd() {
 		int edad = 50;
-		boolean estaDentroDelRango; 
+		
+		//Pecado capital 3 : Exceso de if
+		/*boolean estaDentroDelRango; 
 
-		if ((edad > 0) && (edad < 100)) {
+		
+		if ((edad > Edad.RANGO_MINIMO) && (edad < Edad.RANGO_MAXIMO)) {
 			estaDentroDelRango = true;
 		} else {
 			estaDentroDelRango = false;
 		} /* if */	
 		
-		assertEquals(true, estaDentroDelRango);
-		assertTrue(estaDentroDelRango);
+		assertEquals(true, Edad.estaDentroDelRango(edad));
+		assertTrue(Edad.estaDentroDelRango(edad)); //Mejor escribirlo asi
 		
 		edad = 1232323;
-		if ((edad > 0) && (edad < 100)) {
+		//Pecado capital 3 : Exceso de if
+		/*if ((edad > Edad.RANGO_MINIMO) && (edad < Edad.RANGO_MAXIMO)) {
 			estaDentroDelRango = true;
 		} else {
 			estaDentroDelRango = false;
 		} /* if */	
 
-		assertEquals(false, estaDentroDelRango);
-		assertFalse(estaDentroDelRango);
+		assertEquals(false, Edad.estaDentroDelRango(edad));
+		assertFalse(Edad.estaDentroDelRango(edad));
 		
 	}/* metodo testAnd */
 } /* class */
