@@ -81,12 +81,28 @@ public class Program {
 
 			// Ejemplo 5 : Casi objetos (le falta algo)
 			// Vamos a mudar esas variables al heap
-			Persona persona = new Persona();
-			persona.nombre = Consola.input(lector, "Ingrese su nombre:");
-			persona.apellido = Consola.input(lector, "Ingrese su apellido:");
-			persona.edad = Consola.inputInt(lector, "Ingrese su edad:");
-			System.out.println(MessageFormat.format("{0},  {1} ({2})", persona.apellido.toUpperCase(), persona.nombre,
-					persona.edad));
+//			Persona persona = new Persona();
+//			persona.nombre = Consola.input(lector, "Ingrese su nombre:");
+//			persona.apellido = Consola.input(lector, "Ingrese su apellido:");
+//			persona.edad = Consola.inputInt(lector, "Ingrese su edad:");
+//			System.out.println(MessageFormat.format("{0},  {1} ({2})", persona.apellido.toUpperCase(), persona.nombre,
+//					persona.edad));
+			
+			//Ejemplo 6 : Mini Ejercicio
+			//Quiero cargar una lista de 3 personas y luego mostrarlaa por pantalla
+			List<Persona> personas = new ArrayList<>();
+			for (int i=1; i<=3; i++) {
+				System.out.println("Ingrese la persona "+ i);
+				Persona persona = new Persona();
+				persona.nombre = Consola.input(lector, "Ingrese su nombre:");
+				persona.apellido = Consola.input(lector, "Ingrese su apellido:");
+				persona.edad = Consola.inputInt(lector, "Ingrese su edad:");
+				personas.add(persona);
+			}
+			personas.forEach(p -> { 
+			   System.out.println("Nombre %s , Apellido %s, Edad: %d".formatted(p.nombre, p.apellido, p.edad));
+			});
+			
 
 
 		} /* try scanner */
