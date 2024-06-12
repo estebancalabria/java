@@ -21,6 +21,4 @@ public abstract class Figura {
 		return nombre;
 	}
 	
-	
-	
 }
