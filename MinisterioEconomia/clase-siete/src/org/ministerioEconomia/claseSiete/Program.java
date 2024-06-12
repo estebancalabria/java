@@ -17,21 +17,20 @@ public class Program {
 			//Figura figura = new Figura(); no puedo instanciar una clase abstracta
 			
 			//Creo unas figuras
-			Circulo c = new Circulo(100);
-			System.out.println(c.getId());
-			System.out.println(c.getNombre());
-			
-			Cuadrilatero c2 = new Cuadrilatero();
-			System.out.println(c2.getId());
-			System.out.println(c2.getNombre());
+			Circulo circulo = new Circulo(100);			
+			Cuadrilatero cuadrilatero = new Cuadrilatero(12,12);
+			TrianguloRectangulo triangulo = new TrianguloRectangulo(10, 10);
 			
 			Figura f; //No puedo instanciar figuraa porque figura es una clse abstracta
-			f = c;
-			System.out.println(f.getId());
-			System.out.println(f.getNombre());
-			f = c2;
-			System.out.println(f.getId());
-			System.out.println(f.getNombre());
+			f = circulo; //Apunto f al circulo
+			System.out.println(f);
+			
+			f = cuadrilatero;
+			System.out.println(f);
+			
+			f = triangulo;
+			System.out.println(f);
+				
 		}
 
 	}
