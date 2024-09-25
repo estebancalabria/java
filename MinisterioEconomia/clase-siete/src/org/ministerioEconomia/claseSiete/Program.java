@@ -1,6 +1,6 @@
 package org.ministerioEconomia.claseSiete;
 
-import java.util.Scanner;
+import java.util.*;
 
 import org.ministerioEconomia.claseSiete.models.*;
 
@@ -15,21 +15,34 @@ public class Program {
 		
 		try (Scanner lector = new Scanner(System.in)){
 			//Figura figura = new Figura(); no puedo instanciar una clase abstracta
+			List<Figura> figuras = new ArrayList<>();
 			
 			//Creo unas figuras
 			Circulo circulo = new Circulo(100);			
 			Cuadrilatero cuadrilatero = new Cuadrilatero(12,12);
 			TrianguloRectangulo triangulo = new TrianguloRectangulo(10, 10);
+			Figura otroTriangulo = new TrianguloRectangulo(3, 3);
 			
-			Figura f; //No puedo instanciar figuraa porque figura es una clse abstracta
-			f = circulo; //Apunto f al circulo
-			System.out.println(f);
+			figuras.add(circulo);
+			figuras.add(cuadrilatero);
+			figuras.add(triangulo);
+			figuras.add(otroTriangulo);
 			
-			f = cuadrilatero;
-			System.out.println(f);
+//			Figura f; //No puedo instanciar figuraa porque figura es una clse abstracta
+//			f = circulo; //Apunto f al circulo
+//			System.out.println(f);
+//			
+//			f = cuadrilatero;
+//			System.out.println(f);
+//			
+//			f = triangulo;
+//			System.out.println(f);
 			
-			f = triangulo;
-			System.out.println(f);
+			for (Figura figura : figuras) {
+				System.out.println(figura);
+				System.out.println("Su area es : " + figura.calcularArea());
+				System.out.println("--------------------------------------");
+			}
 				
 		}
 

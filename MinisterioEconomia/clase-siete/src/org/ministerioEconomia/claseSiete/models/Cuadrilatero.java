@@ -19,5 +19,10 @@ public class Cuadrilatero extends Figura {
 	public String toString() {
 		return "Soy un " + this.nombre + " con lado1 " + this.lado1 + " y lado2 " + this.lado2;
 	}
+	
+	@Override
+	public double calcularArea() {
+		return  this.lado1 * this.lado2;
+	}
 
 }

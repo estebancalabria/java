@@ -21,4 +21,5 @@ public abstract class Figura {
 		return nombre;
 	}
 	
+	public abstract double calcularArea();
 }

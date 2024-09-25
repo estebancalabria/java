@@ -24,4 +24,9 @@ public class Circulo extends Figura {
 		// TODO Auto-generated method stub
 		return "Soy un " + this.nombre + "de radio " + this.radio;
 	}
+	
+	@Override
+	public double calcularArea() {
+		return Math.PI * Math.pow(this.radio, 2);
+	}
 }
