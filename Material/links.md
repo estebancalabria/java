@@ -24,3 +24,8 @@
 
 * Tutorial SQLite
 	https://www.sqlitetutorial.net/
+
+## Arquitectura de Software
+
+Martin Fowler
+	https://www.martinfowler.com/
