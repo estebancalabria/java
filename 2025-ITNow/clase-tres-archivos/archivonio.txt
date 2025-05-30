@@ -1,0 +1,1 @@
+Este es el contenido del archivo generado con la libreria java.nio
