@@ -1,4 +1,4 @@
-# 🟢 LAB-0630-SPRING-JWT-Authentication
+# 🟢 LAB-0635-SPRING-JWT-Authentication with filters
 
 **Objetivo:** Implementar autenticación stateless en Spring Boot usando **JWT**, validando tokens en cada request.
 
