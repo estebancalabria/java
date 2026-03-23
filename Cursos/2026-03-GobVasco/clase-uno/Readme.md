@@ -40,7 +40,7 @@
 
 # Grafico arqutiectura Microservicios
 
-```markdown
+```mermaid
 flowchart LR
     Client[Cliente (Web / Mobile)] --> Gateway[API Gateway]
 
