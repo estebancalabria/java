@@ -323,6 +323,104 @@ public class PersonaController {
 }
 ```
 
+# Manejo de Status Code HTTP
+
+* Agregar el GetByID del Servicio en la interfaz
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+
+public interface IPersonaService {
+	List<Persona> getAll();
+	
+	Persona getById(int id);
+}
+
+```
+
+* Implementamos el GetById en el servicio
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PersonaService implements IPersonaService {
+	
+	List<Persona> personas = new ArrayList<>();
+	
+	public PersonaService() {
+		Persona juan = new Persona();
+		juan.setDocumento(1);
+		juan.setNombre("Juan");
+		juan.setApellido("Perez");
+		
+		personas.add(juan);
+		
+		Persona maria = new Persona();
+		maria.setDocumento(2);
+		maria.setNombre("Maria");
+		maria.setApellido("Gomez");
+		
+		personas.add(maria);	
+	}
+
+	public List<Persona> getAll(){
+		return personas;
+	}
+
+	@Override
+	public Persona getById(int id) {
+		// TODO Auto-generated method stub
+		if (id > this.personas.size()) {
+			//Devolvemos nulo o lanzamos una excepcion
+			return null;
+		}
+		return this.personas.get(id-1);
+	}	
+}
+```
+
+* Implementamos en el controlador
+
+```java
+//...
+
+@RestController
+public class PersonaController {
+	
+	//...	
+	
+	@GetMapping("/persona")
+	public List<Persona> getAll(){
+		return this.personaService.getAll();
+	}
+	
+	@GetMapping("/persona/{id}")
+	public ResponseEntity<Persona> getById(@PathVariable int id){
+		
+		Persona persona = this.personaService.getById(id);
+		
+
+		if (persona==null) {
+			return ResponseEntity.notFound().build(); 
+		}
+		
+		return new ResponseEntity<Persona>(persona, HttpStatus.OK);
+	}
+}
+
+
+```
 
 # Anotaciones SpringBoot
 
@@ -334,3 +432,8 @@ public class PersonaController {
 * @PathVariable
 * @Service
 * @Autowired
+
+# Clases de SpringBoot
+
+* ResponseEntity
+* HttpResult
