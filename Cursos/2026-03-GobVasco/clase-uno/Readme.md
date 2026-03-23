@@ -422,16 +422,137 @@ public class PersonaController {
 
 ```
 
+## Agregamos un post
+
+* Modifcamos la itnerfaz
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+
+public interface IPersonaService {
+	List<Persona> getAll();
+	
+	Persona getById(int id);
+	
+	void add(Persona p);
+}
+
+```
+
+* Modificamos el servicio
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PersonaService implements IPersonaService {
+	
+	List<Persona> personas = new ArrayList<>();
+	
+	public PersonaService() {
+		Persona juan = new Persona();
+		juan.setDocumento(1);
+		juan.setNombre("Juan");
+		juan.setApellido("Perez");
+		
+		personas.add(juan);
+		
+		Persona maria = new Persona();
+		maria.setDocumento(2);
+		maria.setNombre("Maria");
+		maria.setApellido("Gomez");
+		
+		personas.add(maria);	
+	}
+
+	public List<Persona> getAll(){
+		return personas;
+	}
+
+	@Override
+	public Persona getById(int id) {
+		// TODO Auto-generated method stub
+		if (id > this.personas.size()) {
+			//Devolvemos nulo o lanzamos una excepcion
+			return null;
+		}
+		return this.personas.get(id-1);
+	}
+
+	@Override
+	public void add(Persona p) {
+		// TODO Auto-generated method stub
+		this.personas.add(p);
+	}	
+}
+
+```
+
+* Modifamos el controlador
+
+```java
+package org.gobvasco.cursomsa.claseuno.controllers;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+import org.gobvasco.cursomsa.claseuno.services.IPersonaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PersonaController {
+	
+	@Autowired
+	private IPersonaService personaService;
+	
+	//...
+	
+	@PostMapping("/persona")
+	public String add(@RequestBody Persona p) {
+		this.personaService.add(p);
+		return "OK";
+	}
+}
+
+
+```
+
+* Todo para no abrir el postman
+
+```cmd
+curl -X POST http://localhost:8080/persona -H "Content-Type: application/json" -d "{\"nombre\":\"Esteban\", \"apellido\":\"Calabria\", \"documento\":3}"
+```
+
 # Anotaciones SpringBoot
 
 * @RestController
 * @GetMapping
+* @PostMapping
 * @RequestParam
    * @RequestParam(required=false)
    * @RequestParam(defaultValue="<VALOR DEFECTO>")
 * @PathVariable
 * @Service
 * @Autowired
+* @RequestBody
 
 # Clases de SpringBoot
 
