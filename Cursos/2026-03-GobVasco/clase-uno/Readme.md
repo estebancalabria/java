@@ -24,6 +24,8 @@
 * Comunicacion entre servicios
     * Sicronica vs Asincronica
     * RestTemplate y WebClient
+* Configuracion de Microservicios
+  * Servidor de Configuracion
 * Dependencias populares de SpringBoot
 * Persistencia y JPA
   * Usamos una base como SQLITE https://sqlite.org/
