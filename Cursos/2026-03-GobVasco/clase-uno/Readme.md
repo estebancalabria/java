@@ -96,3 +96,241 @@ java --version
 *  Descomprimir el zip en la carpeta de Worskpace
 *  File...Import...Maven... Existing Maven Project
 *  Boton Derecho protecto...Run As... Java Appilcation...El nombre de la clase Principal
+
+# Crear nuestro primer controlador
+
+* Crear un paquete pero que termine con Controller
+* Crear una clase Persona Controller dentro de ese paquete
+* Agregar a la clase la anotacion/decorador @RestController
+* Agregar el metodo HolaMundo que devuelve un String con la anotacion @GetMapping("/holamundo")
+
+## @GetMapping
+
+```java
+package org.gobvasco.cursomsa.claseuno.controllers;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PersonaController {
+	
+	@GetMapping("/holamundo")
+	public String holaMundo() {
+		return "Hola Mundo";
+	}
+
+}
+```
+
+## @RequestParam
+
+```java
+package org.gobvasco.cursomsa.claseuno.controllers;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PersonaController {
+
+//...	
+
+	@GetMapping("/saludar")
+	//public String saludar(@RequestParam String nombre) { 
+	/*public String saludar(@RequestParam(required=false) String nombre) {
+		return (nombre==null) ? "Hola desconocido" : "Hola "+nombre;
+	}*/
+	public String saludar(@RequestParam(defaultValue="desconocidooo") String nombre) {
+		return "Hola "+ nombre;
+	}
+
+}
+
+```
+
+## @PathVariable
+
+```java
+package org.gobvasco.cursomsa.claseuno.controllers;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PersonaController {
+	
+	
+	@GetMapping("/saludo/{nombre}")
+	public String saludo(@PathVariable String nombre) {
+		return "Hola " + nombre;
+	}
+
+}
+
+```
+
+## Implementar arquitectura Referencia
+
+* Agregamos paquete servicios (org.gobvasco.cursomsa.claseuno.services)
+* Agregamos paqeute dto (org.gobvasco.cursomsa.claseuno.services)
+* Crear la clase Persona
+
+```java
+package org.gobvasco.cursomsa.claseuno.dto;
+
+public class Persona {
+ 	private int documento;
+ 	private String nombre;
+ 	private String apellido;
+ 	
+ 	public int getDocumento() {
+ 		return documento;
+ 	}
+ 	public void setDocumento(int documento) {
+ 		this.documento = documento;
+ 	}
+ 	public String getNombre() {
+ 		return nombre;
+ 	}
+ 	public void setNombre(String nombre) {
+ 		this.nombre = nombre;
+ 	}
+ 	public String getApellido() {
+ 		return apellido;
+ 	}
+ 	public void setApellido(String apellido) {
+ 		this.apellido = apellido;
+ 	}
+}
+```
+
+* Crear la interfaz del servicio
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+
+public interface IPersonaService {
+	List<Persona> getAll();
+}
+
+```
+
+* Crear clase Servicio
+
+```java
+package org.gobvasco.cursomsa.claseuno.services;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PersonaService implements IPersonaService {
+
+	public List<Persona> getAll(){
+		List<Persona> result = new ArrayList<>();
+		
+		Persona juan = new Persona();
+		juan.setDocumento(1);
+		juan.setNombre("Juan");
+		juan.setApellido("Perez");
+		
+		result.add(juan);
+		
+		Persona maria = new Persona();
+		maria.setDocumento(2);
+		maria.setNombre("Maria");
+		maria.setApellido("Gomez");
+		
+		result.add(maria);
+		
+		return result;
+	}
+}
+
+```
+
+* Crear el dto
+
+```java
+package org.gobvasco.cursomsa.claseuno.dto;
+
+public class Persona {
+	private int documento;
+	private String nombre;
+	private String apellido;
+	
+	public int getDocumento() {
+		return documento;
+	}
+	public void setDocumento(int documento) {
+		this.documento = documento;
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	public String getApellido() {
+		return apellido;
+	}
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
+	}
+}
+
+```
+
+> Tengo la opcion de utilizar la libreria lombok si no quiero tener que declarar getters y setters
+
+* Crear el endpoint en el controller
+
+```java
+package org.gobvasco.cursomsa.claseuno.controllers;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.claseuno.dto.Persona;
+import org.gobvasco.cursomsa.claseuno.services.IPersonaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PersonaController {
+	
+	@Autowired
+	private PersonaService IPersonaService;
+	
+	@GetMapping("/persona")
+	public List<Persona> getAll(){
+		return this.personaService.getAll();
+	}
+
+}
+```
+
+
+# Anotaciones SpringBoot
+
+* @RestController
+* @GetMapping
+* @RequestParam
+   * @RequestParam(required=false)
+   * @RequestParam(defaultValue="<VALOR DEFECTO>")
+* @PathVariable
+* @Service
+* @Autowired
