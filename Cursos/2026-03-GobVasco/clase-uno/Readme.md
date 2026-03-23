@@ -42,7 +42,7 @@
 
 ```mermaid
 flowchart LR
-    Client[Cliente (Web / Mobile)] --> Gateway[API Gateway]
+    Client[Cliente-Web-o-Mobile] --> Gateway[API Gateway]
 
     Gateway --> Auth[Auth Service]
     Gateway --> Users[Users Service]
