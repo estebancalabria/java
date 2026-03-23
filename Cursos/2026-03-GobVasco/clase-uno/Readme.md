@@ -1,6 +1,6 @@
-# Gobierno Vasco
+# Gobierno Vasco - Spring Boot y Arquitectura Micro Servicio
 
-# Spring Boot y Arquitectura Micro Servicios - Clase Uno - 23 de Marzo 2025
+# Clase Uno - 23 de Marzo 2025
 
 # Programa del Curso
 
@@ -540,6 +540,40 @@ public class PersonaController {
 ```cmd
 curl -X POST http://localhost:8080/persona -H "Content-Type: application/json" -d "{\"nombre\":\"Esteban\", \"apellido\":\"Calabria\", \"documento\":3}"
 ```
+
+# Configurando SprongBoot Locamente
+
+* Modificamos el application.properties
+
+```
+spring.application.name=claseuno
+app.mensaje.holamundo=Hola mundo desde config
+```
+
+* Modificamos el controlador
+
+```java
+
+//...
+
+@RestController
+public class PersonaController {
+	
+	@Autowired
+	private IPersonaService personaService;
+	
+	@Value("${app.mensaje.holamundo}")
+	private String holaMundoMessage;
+	
+	@GetMapping("/holamundo")
+	public String holaMundo() {
+		//return "Hola Mundo";
+		return this.holaMundoMessage;
+	}
+
+//...
+```
+
 
 # Anotaciones SpringBoot
 
