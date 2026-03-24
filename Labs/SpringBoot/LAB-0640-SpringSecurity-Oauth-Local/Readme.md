@@ -6,7 +6,7 @@ Implementar un flujo completo de OAuth2 usando:
 * 🟢 Un **Authorization Server propio (Spring Boot)**
 * 🔵 Un **Client (Spring Boot)** que hace login contra ese servidor
 
-👉 Vas a tener **2 aplicaciones corriendo en paralelo (2 Eclipse)**
+Vas a tener **2 aplicaciones corriendo en paralelo**.
 
 ---
 
@@ -16,9 +16,9 @@ Implementar un flujo completo de OAuth2 usando:
 [ Cliente (puerto 8080) ] ---> [ Authorization Server (puerto 9000) ]
 ```
 
-* Cliente → redirige al login
+* Cliente → redirige al login del Authorization Server
 * Auth Server → autentica usuario
-* Devuelve token + user info
+* Auth Server → devuelve token + información del usuario al cliente
 
 ---
 
@@ -26,50 +26,102 @@ Implementar un flujo completo de OAuth2 usando:
 
 ---
 
-## **Paso 0: Crear proyecto**
+## **Paso 0: Crear proyecto Authorization Server**
 
-Spring Initializr:
+1. Abrir [https://start.spring.io](https://start.spring.io)
+2. Configurar opciones del proyecto:
 
-* **Spring Web**
-* **Spring Security**
-* **OAuth2 Authorization Server**
+   * **Project:** Maven
+   * **Language:** Java
+   * **Spring Boot:** versión estable más reciente
+   * **Group:** `com.miempresa`
+   * **Artifact:** `auth-server`
+   * **Name:** `AuthServerApplication`
+   * **Package name:** `com.miempresa.authserver`
+   * **Packaging:** Jar
+   * **Java:** 17 o superior
+3. En **Dependencies**, agregar:
 
-👉 Nombre sugerido:
-
-```
-auth-server
-```
+   * **Spring Web**
+   * **Spring Security**
+   * **OAuth2 Authorization Server**
+4. Hacer clic en **GENERATE** para descargar el proyecto y abrirlo en tu IDE.
 
 ---
 
-## **Paso 1: Configuración básica**
+## **Paso 1: Configuración básica del servidor**
 
-Archivo:
-`application.yml`
+Archivo: `src/main/resources/application.yml`
 
 ```yaml
 server:
   port: 9000
 ```
 
+* Esto indica que el Authorization Server se ejecutará en **puerto 9000**.
+* Cada aplicación de este laboratorio tendrá su propio puerto.
+
 ---
 
-## **Paso 2: Configurar usuarios en memoria**
+## **Paso 2: Crear clase principal**
+
+Archivo: `src/main/java/com/miempresa/authserver/AuthServerApplication.java`
 
 ```java
-@Bean
-public UserDetailsService users() {
-    UserDetails user = User
-            .withUsername("esteban")
-            .password("{noop}1234")
-            .roles("USER")
-            .build();
+package com.miempresa.authserver;
 
-    return new InMemoryUserDetailsManager(user);
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AuthServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AuthServerApplication.class, args);
+    }
 }
 ```
 
+* `@SpringBootApplication` marca la clase como principal y permite que Spring Boot la ejecute.
+
 ---
+
+## **Paso 3: Configurar usuarios en memoria**
+
+Archivo: `src/main/java/com/miempresa/authserver/config/UserConfig.java`
+
+```java
+package com.miempresa.authserver.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@Configuration
+public class UserConfig {
+
+    @Bean
+    public UserDetailsService users() {
+        // Creamos un usuario con username 'esteban' y password '1234'
+        UserDetails user = User
+                .withUsername("esteban")
+                .password("{noop}1234") // {noop} indica que no se aplica encoding
+                .roles("USER")
+                .build();
+
+        // InMemoryUserDetailsManager guarda usuarios en memoria para pruebas
+        return new InMemoryUserDetailsManager(user);
+    }
+}
+```
+
+* Cada usuario tiene un **nombre**, **contraseña** y **roles** asignados.
+* `{noop}` indica que la contraseña se almacena en texto plano (solo para laboratorio).
+* Esto permite que el Authorization Server pueda autenticar a los usuarios cuando el cliente haga login.
+
 
 ## **Paso 3: Configurar cliente OAuth**
 
