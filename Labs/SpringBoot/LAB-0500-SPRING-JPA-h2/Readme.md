@@ -78,25 +78,19 @@ src/main/resources/application.properties
 Configurar:
 
 ```properties id="h2config01"
-# nombre de la aplicación
 spring.application.name=Aplicacion Clase H2
 
-# puerto
 server.port=3000
 
-# configuración H2 en memoria
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driverClassName=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=
 
-# dialecto Hibernate
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 
-# creación automática de tablas
 spring.jpa.hibernate.ddl-auto=update
 
-# habilitar consola web H2
 spring.h2.console.enabled=true
 spring.h2.console.path=/h2-console
 ```
