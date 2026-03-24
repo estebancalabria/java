@@ -145,6 +145,71 @@ public RegisteredClientRepository registeredClientRepository() {
 }
 ```
 
+## **Paso 4: Probar login en el navegador**
+
+* Abrir en el navegador: `http://localhost:9000/login`
+* Ingresar las credenciales definidas en memoria:
+
+  * Usuario: `esteban`
+  * Contraseña: `1234`
+* Esto verifica que Spring Security puede autenticar al usuario correctamente.
+
+---
+
+## **Paso 5: Probar el endpoint de autorización con curl**
+
+* Para simular un **flujo password grant** (solo testing):
+
+```bash
+curl -u client-id:client-secret -X POST \
+  -d "grant_type=password&username=esteban&password=1234" \
+  http://localhost:9000/oauth2/token
+```
+
+* Devuelve un JSON con:
+
+  * `access_token` → token JWT para acceder a recursos protegidos
+  * `token_type`
+  * `expires_in`
+  * `scope`
+
+---
+
+## **Paso 6: Probar el endpoint JWKS con curl**
+
+```bash
+curl http://localhost:9000/oauth2/jwks
+```
+
+* Devuelve la **clave pública** usada para validar los JWT emitidos por el Authorization Server.
+
+---
+
+## **Paso 7: Validar acceso con el token**
+
+* Una vez obtenido el `access_token`, se puede probar un recurso protegido (simulado) en otro servicio cliente:
+
+```bash
+curl -H "Authorization: Bearer <access_token>" \
+  http://localhost:8080/protected-resource
+```
+
+* Devuelve el resultado del recurso protegido si el token es válido.
+* Devuelve `401 Unauthorized` si el token es inválido o expiró.
+
+---
+
+## **Paso 8: Resumen de endpoints disponibles**
+
+| Endpoint            | Método   | Descripción                                        |
+| ------------------- | -------- | -------------------------------------------------- |
+| `/login`            | GET/POST | Página de login de Spring Security                 |
+| `/oauth2/authorize` | GET/POST | Inicio del flujo de autorización                   |
+| `/oauth2/token`     | POST     | Intercambia código o credenciales por access token |
+| `/oauth2/jwks`      | GET      | Devuelve clave pública para validar JWT            |
+| `/logout`           | POST     | Cierra la sesión del usuario                       |
+
+
 ---
 
 ## **Paso 4: Configuración de seguridad**
