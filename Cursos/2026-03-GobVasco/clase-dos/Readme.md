@@ -34,6 +34,8 @@
   *  En el application.properties (o el yaml)
   *  El config server (mejor)
   *  En el eureka  
+* Los Servicios DEBEN responder en forma inmediata, si un servicio va a tardar (mas de 15 segundos por ejemplos) debemos implementar una llamada async
+
 
 # Inyeccion de dependencias por Codigo
 
@@ -145,13 +147,122 @@ public class ServiceBController {
 
 ### Usando Intefaces
 
-....
 
-## Comunicacion Asincronica
+* La vamos a ver si hay tiempo
 
+## Comunicacion Asincronica con dos Processos
 
+* Habilitar llamada asincronicas en el Servicio prinicpal @EnableAsync (el que es asincrono)
 
-# Validaciones de Beans
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@SpringBootApplication
+@EnableAsync
+public class ServicioAApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServicioAApplication.class, args);
+	}
+	
+
+}
+```
+
+* Los metodos que tardan los voy a decorar con 	@Async. Servicio de Ejemplo
+
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA.services;
+
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AsyncService {
+
+	private String estado = "Proceso Largo no Inciado";
+	
+	@Async
+	public void iniciarProcesoLargo() {
+		this.estado = "Proceso Largo Inciado";
+		try {
+			Thread.sleep(10000);
+			this.estado = "Proceso Largo Finalizado";
+		} catch (InterruptedException e) {
+		   //...
+		}
+	}
+	
+	public String getEstadoProceso() {
+		return this.estado;
+	}
+	
+}
+```
+
+* Lo ejecuto desde el controlador
+
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA.controllers;
+
+import org.gobvasco.cursomsa.clasedos.servicioA.services.AsyncService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class MainController {
+	
+	private final RestTemplate http;
+	
+	@Autowired
+	private AsyncService service;
+		
+	public MainController(RestTemplate http) {
+		this.http = http;
+	}
+	
+	@GetMapping("/servicea")
+	public String heatbeat() {
+		return "Service A is OK";
+	}
+	
+	@GetMapping("/sync")
+	public String syncComminication() {
+		String resultadoAnidado = this.http.getForObject(
+				"http://localhost:8080/serviceb", 
+				String.class);
+				
+		
+		return "La llamada al servicio anidado es " + resultadoAnidado;
+		
+	}
+	
+	@GetMapping("/start-async")
+	public String startAsyncProcess() {
+		this.service.iniciarProcesoLargo();
+		return "Proceso Largo Inciado";
+	}
+	
+	@GetMapping("/async-status")
+	public String estadoProceso() {
+		return this.service.getEstadoProceso();		
+	}
+
+}
+
+```
+
+---
+
+## Comunicacion Asincronica con un webHook
+
+# Validaciones de Beans (SpringBoot)
 
 # Configuracion (Config Server)
 
