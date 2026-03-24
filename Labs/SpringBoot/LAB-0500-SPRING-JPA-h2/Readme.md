@@ -269,6 +269,12 @@ Body:
 }
 ```
 
+Comando Curl
+
+```cmd
+curl -X POST http://localhost:3000/api/canciones -H "Content-Type: application/json" -d "{\"titulo\":\"De música ligera\",\"artista\":\"Soda Stereo\"}"
+```
+
 ---
 
 ## 📄 Listar canciones
