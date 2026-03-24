@@ -283,9 +283,7 @@ public class TestController {
 Se puede enviar con Curl con este comando
 
 ```
-curl -X POST http://localhost:8080/auth/login \
--H "Content-Type: application/json" \
--d '{"username":"user","password":"password"}'
+curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d "{\"username\":\"user\",\"password\":\"password\"}"
 ```
 
 2. Recibirás un **JWT token** como respuesta.
