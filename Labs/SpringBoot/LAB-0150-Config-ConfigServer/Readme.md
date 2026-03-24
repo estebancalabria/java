@@ -214,9 +214,9 @@ Igual que antes.
 
 ---
 
-## ⚙️ 4.5 Crear bootstrap.yml
+## ⚙️ 4.5 Crear application.yml
 
-📁 `src/main/resources/bootstrap.yml`
+📁 `src/main/resources/application.yml`
 
 ```yaml
 spring:
@@ -227,7 +227,7 @@ spring:
     import: "optional:configserver:http://localhost:8888"
 ```
 
-👉 Esto reemplaza `application.yml`
+👉 Esto reemplaza `application.propieties`
 
 ---
 
