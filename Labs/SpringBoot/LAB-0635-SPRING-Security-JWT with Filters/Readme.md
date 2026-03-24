@@ -83,6 +83,8 @@ public class AuthRequest {
 
 Archivo: `src/main/java/com/miempresa/demoactuator/util/JwtUtil.java`
 
+* Los Import
+
 ```java id="lab0630-3"
 package com.miempresa.demoactuator.util;
 
@@ -91,18 +93,28 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Claims;
 import java.util.Date;
 import org.springframework.stereotype.Component;
+```
 
+* El codigo del JWTUtil
+
+```java
 @Component
 public class JwtUtil {
 
     private final String SECRET_KEY = "miSecretoSuperSeguro";
+
+    // Convertir el String a Key segura
+    private Key getSigningKey() {
+        byte[] keyBytes = SECRET_KEY.getBytes();
+        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
+    }
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -115,8 +127,9 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -256,13 +269,9 @@ public class TestController {
 
 ### **Paso 7: Probar JWT**
 
-1. Ejecutar aplicación:
 
-```bash id="lab0630-7"
-./mvnw spring-boot:run
-```
 
-2. Enviar POST a `/auth/login` con JSON:
+1. Enviar POST a `/auth/login` con JSON:
 
 ```json id="lab0630-8"
 {
@@ -271,11 +280,19 @@ public class TestController {
 }
 ```
 
-3. Recibirás un **JWT token** como respuesta.
+Se puede enviar con Curl con este comando
 
-4. Acceder a `/private` incluyendo JWT en header `Authorization: Bearer <token>` → acceso permitido.
+```
+curl -X POST http://localhost:8080/auth/login \
+-H "Content-Type: application/json" \
+-d '{"username":"user","password":"password"}'
+```
 
-5. Probar token expirado → acceso denegado.
+2. Recibirás un **JWT token** como respuesta.
+
+3. Acceder a `/private` incluyendo JWT en header `Authorization: Bearer <token>` → acceso permitido.
+
+4. Probar token expirado → acceso denegado.
 
 ---
 
