@@ -313,6 +313,8 @@ Luego ejecutar:
 SELECT * FROM CANCION;
 ```
 
+> NOTA: Asegurarte jdbc:h2:mem:testdb
+
 ---
 
 # ⚠️ Importante
