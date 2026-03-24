@@ -258,12 +258,130 @@ public class MainController {
 
 ```
 
----
+* Ejemplo de configuracion del comportamiento del async (GRACIAS OIER)
+
+```java
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+  //  //
+  private int corePoolSize = 5;
+  private int maxPoolSize = 10;
+  private int queueCapacity = 500;
+ 
+  @Bean(name = "asyncExecutor")
+  public Executor getAsyncExecutor() {
+    System.out.println("INICIO Executor");
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(corePoolSize);
+    executor.setMaxPoolSize(maxPoolSize);
+    executor.setQueueCapacity(queueCapacity);
+    executor.setThreadNamePrefix(Constantes.APLICACION.concat("-"));
+    executor.initialize();
+    return executor;
+  }
+ 
+}
+ 
+ 
+generas una clase de configuración no para toda la app y configuras los hilos y de mas
+ 
+y el método asíncrono pues así en el service que toca
+ 
+@Async("asyncExecutor")
+  @Override
+  public void generarNotificacionAsincrono
+```
 
 ## Comunicacion Asincronica con un webHook
 
-# Validaciones de Beans (SpringBoot)
+---
+---
 
 # Configuracion (Config Server)
+
+## Config Server
+
+* En el Spring Initalizer Incluir
+
+> ConfigServer
+
+* Agregarle la anotacion @EnableConfigServer a la clase Principal
+
+```java
+package org.gobvasco.cursomsa.clasedos.configserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigserverApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigserverApplication.class, args);
+	}
+
+}
+```
+
+* El application.propeties me queda asi
+
+```yml
+spring.application.name=configserver
+server.port=8888
+#spring.cloud.config.server.git.uri=http://github.com/estebancalabria/config
+
+spring.profiles.active=native
+spring.cloud.config.server.native.search-locations=file:///C:/Cursos/Java//Cursos/2026-03-GobVasco/workspace/config-files
+
+```
+
+> En este ejemplo configuramos el config server para que lo lea del filesystem, pero en la practica las configuraciones se suben a un repo de git
+
+---
+---
+
+## Config Client
+
+* El application.yaml me queda asi (no bootstrap.yml)
+
+```yml
+spring:
+  application:
+    name: config-client-demo
+    
+  config:
+    import: configserver:http://localhost:8888
+```
+
+* Al ejecutarnos nos damos cuenta si funciono cuando lo levanta del puerto 8082 que definimos en el confiserver
+
+* Para estar mas seguros lo probamos en un controlador
+
+```java
+package org.gobvasco.cursomsa.clasedos.configclient.controllers;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ConfigClientDemoController {
+	
+	@Value("${app.mensaje}")
+	private String mensaje;
+
+	@GetMapping("/demo")
+	public String demo() {
+		return this.mensaje;
+	}
+}
+```	
+
+# Validaciones de Beans (SpringBoot)
+
+
 
 # JPa...
