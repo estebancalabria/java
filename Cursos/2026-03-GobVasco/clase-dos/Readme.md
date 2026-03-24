@@ -145,10 +145,137 @@ public class ServiceBController {
 
 ```
 
-### Usando Intefaces
+### Feigns (Usando Intefaces) (Clean Code)
+
+* Fegin (Libreria externa)
+* HTTPInterace (Spring 6)
+	* No la use
+
+* Agregar en el POM
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+* En la clase principal agregar @EnableFeignClients
+
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@SpringBootApplication
+@EnableAsync
+@EnableFeignClients
+public class ServicioAApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServicioAApplication.class, args);
+	}
+	
+
+}
+
+```
+
+* Crearmos la interfaz del servicio al que queremos llamar
 
 
-* La vamos a ver si hay tiempo
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA.external;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient(name="servicio-b", url="http://localhost:8080/")
+public interface ServiceBInvocation {
+	
+	@GetMapping("/serviceb")
+	String getMensaje();
+
+}
+
+```
+
+* Usamos la interfaz
+
+```java
+package org.gobvasco.cursomsa.clasedos.servicioA.controllers;
+
+import org.gobvasco.cursomsa.clasedos.servicioA.external.ServiceBInvocation;
+import org.gobvasco.cursomsa.clasedos.servicioA.services.AsyncService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class MainController {
+	
+	private final RestTemplate http;
+	
+	@Value("${app.mensaje}")
+	private String mensaje;
+	
+	@Autowired
+	private AsyncService service;
+	
+	private ServiceBInvocation externalService;
+		
+	public MainController(RestTemplate http, ServiceBInvocation external) {
+		this.http = http;
+		this.externalService = external;
+	}
+	
+	@GetMapping("/servicea")
+	public String heatbeat() {
+		//return "Service A is OK";
+		return this.mensaje;
+	}
+	
+	@GetMapping("/sync")
+	public String syncComminication() {
+		String resultadoAnidado = this.http.getForObject(
+				"http://localhost:8080/serviceb", 
+				String.class);
+				
+		
+		return "La llamada al servicio anidado es " + resultadoAnidado;
+		
+	}
+	
+	@GetMapping("/sync-feign")
+	public String syncComminicationFerign() {
+		/*String resultadoAnidado = this.http.getForObject(
+				"http://localhost:8080/serviceb", 
+				String.class);*/
+				
+		
+		return "La llamada al servicio anidado es " + this.externalService.getMensaje();
+		
+	}
+	
+	@GetMapping("/start-async")
+	public String startAsyncProcess() {
+		this.service.iniciarProcesoLargo();
+		return "Proceso Largo Inciado";
+	}
+	
+	@GetMapping("/async-status")
+	public String estadoProceso() {
+		return this.service.getEstadoProceso();		
+	}
+
+}
+
+```
 
 ## Comunicacion Asincronica con dos Processos
 
@@ -279,8 +406,7 @@ public class AsyncConfig {
     executor.setThreadNamePrefix(Constantes.APLICACION.concat("-"));
     executor.initialize();
     return executor;
-  }
- 
+  } 
 }
  
  
@@ -380,8 +506,16 @@ public class ConfigClientDemoController {
 }
 ```	
 
-# Validaciones de Beans (SpringBoot)
+# Para la proximas...
 
-
-
-# JPa...
+* Miercoles 
+	* Validaciones de Beans (SpringBoot)
+	*  JPA (Persistencia)
+		 *  Migraciones
+* Jueves
+	* Spring Security
+	  * Service Discovery
+* Viernes
+	* APi Gateway (Eureka)
+ 	* Logging (Actuator) 
+	* Examen
