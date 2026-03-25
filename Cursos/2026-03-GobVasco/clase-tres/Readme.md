@@ -44,6 +44,7 @@
   	* @Column
   	* @OneToOne
 	* @JoinColumn
+    * @Transactional 
 
 * Interfaces y clases
 	* JpaRepository<> 
@@ -402,7 +403,185 @@ public interface ArtistaRepository  extends JpaRepository<Artista, Long> {
 
 }
 
-``` 
+```
+
+* Vamos a Agregar el CancionService dentro del paquete de services
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.services;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.dto.CancionDTO;
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.*;
+import org.gobvasco.cursomsa.clasetres.jpademo.repositories.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+public class CancionService {
+	
+	@Autowired
+	private CancionRepository repoCancion;
+	
+	@Autowired
+	private ArtistaRepository repoArtista;
+	
+	public CancionDTO crearConError(CancionDTO cancion) {
+		//En este ejemplo va a guardar el artista pero no va a guardar la cancion
+		
+		Artista artista = new Artista();
+		artista.setNombre(cancion.getArtista());
+		
+		this.repoArtista.save(artista);
+		
+		//Voy a guardar la cancion
+		if (true) {
+			throw new RuntimeException("Error simulado");
+		}
+		
+		Cancion cancionNueva = new Cancion();
+		cancionNueva.setArtista(artista);
+		cancionNueva.setTitulo(cancion.getTitulo());
+		
+		this.repoCancion.save(cancionNueva);
+		
+		cancion.setId(cancionNueva.getId());
+		
+		return cancion;
+	}
+	
+	@Transactional
+	public CancionDTO crearConErrorYTransaccion(CancionDTO cancion) {
+		//En este ejemplo como da error hace ROOLBACK de la transaccion y no guarda el artista
+		
+		Artista artista = new Artista();
+		artista.setNombre(cancion.getArtista());
+		
+		this.repoArtista.save(artista);
+		
+		//Voy a guardar la cancion
+		if (true) {
+			throw new RuntimeException("Error simulado");
+		}
+		
+		Cancion cancionNueva = new Cancion();
+		cancionNueva.setArtista(artista);
+		cancionNueva.setTitulo(cancion.getTitulo());
+		
+		this.repoCancion.save(cancionNueva);
+		
+		cancion.setId(cancionNueva.getId());
+		
+		return cancion;
+	}
+	
+	@Transactional
+	public CancionDTO crearSinError(CancionDTO cancion) {
+		//En este ejemplo como da error hace ROOLBACK de la transaccion y no guarda el artista
+		
+		Artista artista = new Artista();
+		artista.setNombre(cancion.getArtista());
+		
+		this.repoArtista.save(artista);
+		
+		Cancion cancionNueva = new Cancion();
+		cancionNueva.setArtista(artista);
+		cancionNueva.setTitulo(cancion.getTitulo());
+		
+		this.repoCancion.save(cancionNueva);
+		
+		cancion.setId(cancionNueva.getId());
+		
+		return cancion;
+	}
+
+
+	public List<CancionDTO> listar(){
+		List<Cancion> canciones = this.repoCancion.findAll();
+		
+		//Se puede usar MapStruct para noh acer el mapeo a mano
+		List<CancionDTO> result = new ArrayList<>();
+		
+		for (Cancion c : canciones) {
+			CancionDTO nuevo = new CancionDTO();
+			nuevo.setId(c.getId());
+			nuevo.setTitulo(c.getTitulo());
+			
+			if (c.getArtista() != null) {
+				nuevo.setArtista(c.getArtista().getNombre());
+			}
+			
+			 result.add(nuevo);
+		}
+		
+		return result;		
+	}
+}
+
+```
+
+* Modificamos ahora el controller
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.controllers;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.dto.CancionDTO;
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.*;
+import org.gobvasco.cursomsa.clasetres.jpademo.repositories.CancionRepository;
+import org.gobvasco.cursomsa.clasetres.jpademo.services.CancionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+public class CancionController {
+
+	//OJO: Mando un repository de una pero esta mal, deberia pasar por el service
+	@Autowired
+	private CancionService service;
+	
+	@PostMapping("/api/v1/canciones")
+	public CancionDTO crearOk(@RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearSinError(cancion);
+	}
+	
+	@PostMapping("/api/v1/canciones-sin-transaccion")
+	public CancionDTO crearSinTransaccion(@RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearConError(cancion);
+	}
+	
+	@PostMapping("/api/v1/canciones-con-transaccion")
+	public CancionDTO crearConTransaccion(@RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearConErrorYTransaccion(cancion);
+	}
+	
+	//Mejor api/cancion en singular se usa mucho
+	@GetMapping("/api/v1/canciones")
+	public List<CancionDTO> listar(){
+		return this.service.listar();
+	}
+	
+	//En la practica me gustraria tener un solo encpoint /canciones pero bueno...
+	//Habria que agregarle el metodo al servicio, pero por lo pronto no me interesa
+	/*@GetMapping("/api/v1/cancionestitulo")
+	public List<Cancion> listarPorTitulo(@RequestParam String titulo){
+		
+		//return this.repo.findByTituloContaining(titulo);
+		//O bien la otra opcion....
+		//return this.repo.buscarPorTituloConQuery(titulo);		
+	}*/
+}
+
+```
 
 # Validaciones de Beans
 
