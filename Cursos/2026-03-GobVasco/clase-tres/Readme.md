@@ -36,6 +36,7 @@
 	      * DESAFIO : Manejo de tracacciones de BD distribuidas
 	  * INTERMEDIO : Una base de datos cada X servicios relacionados
 	  * REAL EN LA PRACTICA : Una base de datos gigante para todos los Microservicios
+    * No olvidarse del @Transactional en los servicios si guardas mas de una tabla
 * Anotacion de JPA 
 	* @Entity
 	* @Id
@@ -583,7 +584,250 @@ public class CancionController {
 
 ```
 
+* Probamos el caso donde Sale todo OK
+
+* Hacemos primero Curl
+```
+curl -X POST http://localhost:8080/api/v1/canciones -H "Content-Type: application/json" -d "{\"titulo\": \"Creci en los 80\", \"artista\":\"El reno Renardo\"}"
+{"artista":"El reno Renardo","id":1,"titulo":"Creci en los 80"}
+```
+
+* Lo verficamos en el navegador
+```
+http://localhost:8080/api/v1/canciones
+```
+
+* Lo verficamos en la consola del la base de datos h2
+
+```
+http://localhost:8080/h2-console/
+```
+
+* Y ejecutamos SQL
+
+```sql
+SELECT * from Song;
+SELECT * from Artista;
+```
+
+* Verificar pero sin transaccion
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-sin-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"No te olvides el transactional\", \"artista\":\"Springboot Records\"}"
+```
+
+* Verifico las tablas
+
+```sql
+SELECT * from Song;
+SELECT * from Artista;
+```
+
+> NOTA: Verificar como aparece el registro en la tabla de artistas pero NO APARECE en la tabla de canciones
+
+* Verificar CON transaccion
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-con-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"Eye of the Tiger\", \"artista\":\"Survivor\"}"
+```
+
+> Ahora tira error pero  no deberia guardar nada en la base de datos por el @Transactional
+
+
+
 # Validaciones de Beans
+
+* Agregar la dependecia de Validation al POM (en caso de no haberla incluido en el Spring Intializr)
+
+```xml
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+* Este paquete me agrega un monton de atributos de validacion en el paquete jakarta.validation.constraints
+	 * @NotBlank
+	 * @Min
+     * @Max
+     * @Pattern <<< Muy utilizaco para validaciones personalizadas con expresiones regulares
+     * @NotNull
+* Anotaciones para el controlador
+	* @Valid
+* Si ninguna de las anotaciones sirve (hay un monton) esta la posibilidad de programar mis propias validaciones
+
+* Ahora el DTO de canciones modificado queda
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.dto;
+
+import jakarta.validation.constraints.*;
+
+public class CancionDTO {
+
+	private Long id;
+	
+	@NotBlank(message="El titulo de la cancion no puede quedar vacio")
+	private String titulo;
+	
+	@Min(value=1, message="La puntuacion no puede ser menor a 1")
+	@Max(value=10, message="La puntuacion no puede ser mayor a 1")
+	@NotNull
+	private int puntuacion;
+	
+	
+	private String artista;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getTitulo() {
+		return titulo;
+	}
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+	public String getArtista() {
+		return artista;
+	}
+	public void setArtista(String artista) {
+		this.artista = artista;
+	}
+	public int getPuntuacion() {
+		return puntuacion;
+	}
+	public void setPuntuacion(int puntuacion) {
+		this.puntuacion = puntuacion;
+	}
+	
+}
+```
+
+* Decirle al controlador que verifique las validaciones con el @Valid
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.controllers;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.dto.CancionDTO;
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.*;
+import org.gobvasco.cursomsa.clasetres.jpademo.repositories.CancionRepository;
+import org.gobvasco.cursomsa.clasetres.jpademo.services.CancionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+
+
+@RestController
+public class CancionController {
+
+	//OJO: Mando un repository de una pero esta mal, deberia pasar por el service
+	@Autowired
+	private CancionService service;
+	
+	@PostMapping("/api/v1/canciones")
+	public CancionDTO crearOk(@Valid @RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearSinError(cancion);
+	}
+	
+	@PostMapping("/api/v1/canciones-sin-transaccion")
+	public CancionDTO crearSinTransaccion(@Valid @RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearConError(cancion);
+	}
+	
+	@PostMapping("/api/v1/canciones-con-transaccion")
+	public CancionDTO crearConTransaccion(@Valid @RequestBody CancionDTO cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.service.crearConErrorYTransaccion(cancion);
+	}
+	
+	//Mejor api/cancion en singular se usa mucho
+	@GetMapping("/api/v1/canciones")
+	public List<CancionDTO> listar(){
+		return this.service.listar();
+	}
+	
+	//En la practica me gustraria tener un solo encpoint /canciones pero bueno...
+	//Habria que agregarle el metodo al servicio, pero por lo pronto no me interesa
+	/*@GetMapping("/api/v1/cancionestitulo")
+	public List<Cancion> listarPorTitulo(@RequestParam String titulo){
+		
+		//return this.repo.findByTituloContaining(titulo);
+		//O bien la otra opcion....
+		//return this.repo.buscarPorTituloConQuery(titulo);		
+	}*/
+}
+
+```
+
+* Probarlo con algunos casos
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-con-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"Eye of the Tiger\", \"artista\":\"Survivor\", \"puntuacion\":-1}"
+```
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-con-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"Eye of the Tiger\", \"artista\":\"Survivor\", \"puntuacion\":1000}"
+```
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-con-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"\", \"artista\":\"Survivor\", \"puntuacion\":6}"
+```
+
+```
+curl -X POST http://localhost:8080/api/v1/canciones-con-transaccion -H "Content-Type: application/json" -d "{\"titulo\": \"\", \"artista\":\"Survivor\", \"puntuacion\":11}"
+```
+
+## Manejo de errores personalizados
+
+* Nos metemos en el mundo de Aspect Oriented Programming
+
+* Anotaciones que vamos a utilizar
+	* @RestControllerAdvice
+	 * @ExceptionHandler(
+
+* El mensaje de erro en las validaciones no es amigable para el usuario final y ademas es una vulnerabilidad de seguridad
+
+* Poner un try catch para personalizar el mensaje en cada metodo de nuestros controladores termina siendo muy repetitivo
+
+* Agrego una clase para el manejo global de GlobalExcetionHandler en el paquete Exceptions
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.exceptions;
+
+import java.util.*;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExcetionHandler {
+   
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<?> manejarErrores(MethodArgumentNotValidException ex){
+		Map<String, String> errores = new HashMap<>();
+		
+		errores.put("error", "Se ha producido un error de Validacion");
+		
+		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+			errores.put(error.getField(), error.getDefaultMessage());
+		}
+		return ResponseEntity.badRequest().body(errores);		
+				
+	}
+}
+```
+
+---
 
 # Arquitectura de Microservicios (MSA)
 
@@ -594,6 +838,9 @@ public class CancionController {
     * dto : mas para comunicacion entre capas (controladores-servicios), mas pensando en lo que devuelven los controllers (controllers)
     * Para mapear entre dto y entidades algunos utilizan librerias como MapStruct
         * https://mapstruct.org/
+* Seguridad: No dejar los mensajes de error que vienen por defecto en produccion ya que dan informacion sobre el codigo subyacente
+
+
 
 ## Versionado de Microservicios
 
@@ -607,5 +854,14 @@ public class CancionController {
  	 * Agrego campos nuevos sin necesidad de cambiar de version de endpoint
 	 * Cambio de estructura JSON ----> Cambia endpoint
 
-# Documentacion de APIS con Swagger <<< Verlo Segurisimo
+# Para la proxima
+
+* Documentacion de APIS con Swagger  << Va obligado
+* Custom Validators  				 << Lo podemos agregar a este proyecto, igual lo pueden ver usteds ya tienen el concepto
+* Migraciones de Bases de Datos
+* Ademar..
+    * Seguridad <<<< Tema ppal clase viene
+    * Eureka
+	* Monitoring
+	* Api Gateway
 
