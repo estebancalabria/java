@@ -40,6 +40,11 @@
 	* @Entity
 	* @Id
   	* @GeneratedValue(strategy = GenerationType.IDENTITY)
+  	* @Table
+  	* @Column
+  	* @OneToOne
+	* @JoinColumn
+
 * Interfaces y clases
 	* JpaRepository<> 
 
@@ -222,6 +227,182 @@ public interface CancionRepository extends JpaRepository<Cancion, Long> {
 ```
 http://localhost:8080/api/v1/cancionestitulo?titulo=80
 ```
+
+## Anotaciones del Modelo (Mapeos)
+
+* Ahora puedo anotar el modelo y especificar los Mapeos
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.entities;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="Song")
+public class Cancion {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="title", nullable=false)
+	private String titulo;
+	
+	@Column(name="artist", nullable=false)
+	private String artista;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getTitulo() {
+		return titulo;
+	}
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+	public String getArtista() {
+		return artista;
+	}
+	public void setArtista(String artista) {
+		this.artista = artista;
+	}
+}
+
+```
+
+* Esto se utiliza cuando hago Database First y tengo la tabla mapeada
+
+## Manejo de Transacciones y mapeos extendidos
+
+* Agregamos el DTO (CancionDTO) en el paquete dto
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.dto;
+
+public class CancionDTO {
+
+	private Long id;
+	
+	private String titulo;
+	
+	private String artista;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getTitulo() {
+		return titulo;
+	}
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+	public String getArtista() {
+		return artista;
+	}
+	public void setArtista(String artista) {
+		this.artista = artista;
+	}
+}
+```
+
+* Creamos ahora la clase Artista
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.entities;
+
+import jakarta.persistence.*;
+
+@Entity
+public class Artista {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	private String nombre;
+
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+}
+
+```
+
+* Modifico la clase Cancion
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.entities;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="Song")
+public class Cancion {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="title", nullable=false)
+	private String titulo;
+	
+	private Artista artista;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getTitulo() {
+		return titulo;
+	}
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+	public Artista getArtista() {
+		return artista;
+	}
+	public void setArtista(Artista artista) {
+		this.artista = artista;
+	}
+}
+
+```
+
+* Agrego el repositorio de Artistas en el paquete de repositories
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.repositories;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.Artista;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ArtistaRepository  extends JpaRepository<Artista, Long> {
+
+}
+
+``` 
 
 # Validaciones de Beans
 
