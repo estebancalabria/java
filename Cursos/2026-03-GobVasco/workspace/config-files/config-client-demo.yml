@@ -1,0 +1,4 @@
+server:
+  port: 8082
+app:
+  mensaje: "Hola desde el servicio config client (Config Server)"

@@ -1,0 +1,4 @@
+server:
+  port: 8081
+app:
+  mensaje: "Hola desde el servicio A (Config Server)"
