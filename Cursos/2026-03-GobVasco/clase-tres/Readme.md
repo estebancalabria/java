@@ -32,11 +32,16 @@
       * Codificar los MAPEOS :
         * Antes con XML o MAPPERs ---> Ahora con DATA Annotations
 * Buenas Practicas
-  * IDEAL : Una base de datos no muy grande por Microservicios       <<
-      * DESAFIO : Manejo de tracacciones de BD distribuidas
-  * INTERMEDIO : Una base de datos cada X servicios relacionados
-  * REAL EN LA PRACTICA : Una base de datos gigante para todos los Microservicios
-
+	  * IDEAL : Una base de datos no muy grande por Microservicios       <<
+	      * DESAFIO : Manejo de tracacciones de BD distribuidas
+	  * INTERMEDIO : Una base de datos cada X servicios relacionados
+	  * REAL EN LA PRACTICA : Una base de datos gigante para todos los Microservicios
+* Anotacion de JPA 
+	* @Entity
+	* @Id
+  	* @GeneratedValue(strategy = GenerationType.IDENTITY)
+* Interfaces y clases
+	* JpaRepository<> 
 
 ## Creacion de CR(UD) con JPA
 
@@ -119,6 +124,103 @@ public interface CancionRepository extends JpaRepository<Cancion, Long> {
 
 }
 
+```
+
+* Agregamos la clase CancionController en controllers
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.controllers;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.*;
+import org.gobvasco.cursomsa.clasetres.jpademo.repositories.CancionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+public class CancionController {
+
+	//OJO: Mando un repository de una pero esta mal, deberia pasar por el service
+	@Autowired
+	private CancionRepository repo;
+	
+	@PostMapping("/api/v1/canciones")
+	public Cancion crear(@RequestBody Cancion cancion) {
+		//El servicio haria validaciones por codigo, logica de negocios, etc...
+		return this.repo.save(cancion);
+	}
+	
+	
+	//Mejor api/cancion en singular se usa mucho
+	@GetMapping("/api/v1/canciones")
+	public List<Cancion> listar(){
+		return this.repo.findAll();
+	}
+}
+```
+
+* Ejecutar y probar el endpoint
+
+```
+http://localhost:8080/api/v1/canciones
+```
+
+* Probar el endpoint de post con curl
+
+```cmd
+curl -X POST http://localhost:8080/api/v1/canciones -H "Content-Type: application/json" -d "{\"titulo\": \"Creci en los 80\", \"artista\":\"El reno Renardo\"}"
+```
+
+* Probar el endpoint de Get y el h2Console
+
+* Fijarse en el H2Console que se haya generado la tabla
+
+## Convenciones de nombres en los repositories
+
+* Documentacion oficial
+> https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html
+
+* Ejemplo de repo
+
+```java
+package org.gobvasco.cursomsa.clasetres.jpademo.repositories;
+
+import java.util.List;
+
+import org.gobvasco.cursomsa.clasetres.jpademo.entities.Cancion;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface CancionRepository extends JpaRepository<Cancion, Long> {
+
+	//Convenciones de nombre
+	List<Cancion> findByArtista(String artista);
+	
+	List<Cancion> findByTituloContaining(String titulo);
+	
+	@Query("Select c FROM Cancion c WHERE c.titulo LIKE '%?1%'")
+	List<Cancion> buscarPorTituloConQuery(String titulo);
+}
+```
+
+* Agregamos una accion al controller
+
+```java
+	@GetMapping("/api/v1/cancionestitulo")
+	public List<Cancion> listarPorTitulo(@RequestParam String titulo){
+		
+		//return this.repo.findByTituloContaining(titulo);
+		//O bien la otra opcion....
+		return this.repo.buscarPorTituloConQuery(titulo);
+	}
+```
+
+* Probarlo
+
+```
+http://localhost:8080/api/v1/cancionestitulo?titulo=80
 ```
 
 # Validaciones de Beans
