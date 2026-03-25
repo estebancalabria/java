@@ -133,5 +133,17 @@ public interface CancionRepository extends JpaRepository<Cancion, Long> {
     * Para mapear entre dto y entidades algunos utilizan librerias como MapStruct
         * https://mapstruct.org/
 
+## Versionado de Microservicios
+
+* Es una buena practiva versionar las api segun el endpoint ej:
+	* "/api/v1/canciones"
+ * En general este versionado puede quedar oculto por el API Gateway (El punto de entrada)
+    * "/api/canciones" ----> "/api/v1/canciones"
+    * "/api/canciones" ----> "/api/v2/canciones"
+* Aunque para uso publico masivo se puede dejar tranquilamente (decision de arquitectura) la version sin problema
+* Los cambios de versiones segun el enpoint es depende el caso (cambio de version no siempre refleja cambio de endpoint)
+ 	 * Agrego campos nuevos sin necesidad de cambiar de version de endpoint
+	 * Cambio de estructura JSON ----> Cambia endpoint
+
 # Documentacion de APIS con Swagger <<< Verlo Segurisimo
 
