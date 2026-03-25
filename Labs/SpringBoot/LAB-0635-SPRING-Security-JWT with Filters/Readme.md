@@ -1,10 +1,10 @@
-# 🟢 LAB-0635-SPRING-JWT-Authentication with filters
+# 🟢 LAB-0635 – Spring Boot JWT Authentication con filtros
 
-**Objetivo:** Implementar autenticación stateless en Spring Boot usando **JWT**, validando tokens en cada request.
+**Objetivo:** Implementar autenticación stateless en Spring Boot usando **JWT**, validando tokens en cada request, y manejando respuestas claras para tokens inválidos o expirados.
 
 ---
 
-### **Paso 0: Preparar proyecto**
+## Paso 0: Preparar proyecto
 
 1. Crear proyecto Spring Boot con dependencias:
 
@@ -13,9 +13,9 @@
    * **Spring Boot DevTools** (opcional)
    * **jjwt** (Java JWT library)
 
-Agregar dependencia JWT en `pom.xml`:
+2. Agregar dependencias JWT en `pom.xml`:
 
-```xml id="lab0630-0"
+```xml
 <dependency>
     <groupId>io.jsonwebtoken</groupId>
     <artifactId>jjwt-api</artifactId>
@@ -37,19 +37,18 @@ Agregar dependencia JWT en `pom.xml`:
 
 ---
 
-### **Paso 1: Clase principal**
+## Paso 1: Clase principal
 
-Archivo: `src/main/java/com/miempresa/demoactuator/DemoJwtApplication.java`
+`src/main/java/com/example/jwt_demo/DemoJwtApplication.java`
 
-```java id="lab0630-1"
-package com.miempresa.demoactuator;
+```java
+package com.example.jwt_demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class DemoJwtApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(DemoJwtApplication.class, args);
     }
@@ -58,12 +57,12 @@ public class DemoJwtApplication {
 
 ---
 
-### **Paso 2: Modelo de usuario para login**
+## Paso 2: DTO para login
 
-Archivo: `src/main/java/com/miempresa/demoactuator/model/AuthRequest.java`
+`src/main/java/com/example/jwt_demo/dto/AuthRequest.java`
 
-```java id="lab0630-2"
-package com.miempresa.demoactuator.model;
+```java
+package com.example.jwt_demo.dto;
 
 public class AuthRequest {
     private String username;
@@ -79,30 +78,40 @@ public class AuthRequest {
 
 ---
 
-### **Paso 3: Servicio para generar JWT**
+## Paso 3: Servicio para generar y validar JWT
 
-Archivo: `src/main/java/com/miempresa/demoactuator/util/JwtUtil.java`
+`src/main/java/com/example/jwt_demo/util/JwtUtil.java`
 
-```java id="lab0630-3"
-package com.miempresa.demoactuator.util;
+```java
+package com.example.jwt_demo.util;
 
+import java.security.Key;
+import java.util.Date;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.Claims;
-import java.util.Date;
-import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "miSecretoSuperSeguro";
+    private final String SECRET_KEY = "esta_es_una_clave_muy_larga_de_32_bytes_minimo!!";
+
+    private Key getSigningKey() {
+        byte[] keyBytes = SECRET_KEY.getBytes();
+        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
+    }
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -110,13 +119,19 @@ public class JwtUtil {
         return getClaims(token).getSubject();
     }
 
-    public boolean isTokenExpired(String token) {
-        return getClaims(token).getExpiration().before(new Date());
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = getClaims(token);
+            return !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -125,57 +140,88 @@ public class JwtUtil {
 
 ---
 
-### **Paso 4: Controlador de autenticación**
+## Paso 4: Filtro de JWT
 
-Archivo: `src/main/java/com/miempresa/demoactuator/controller/AuthController.java`
+`src/main/java/com/example/jwt_demo/config/JwtAuthenticationFilter.java`
 
-```java id="lab0630-4"
-package com.miempresa.demoactuator.controller;
+```java
+package com.example.jwt_demo.config;
 
-import com.miempresa.demoactuator.model.AuthRequest;
-import com.miempresa.demoactuator.util.JwtUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+import com.example.jwt_demo.util.JwtUtil;
 
-    @Autowired
-    private AuthenticationManager authManager;
+import java.io.IOException;
+import java.util.List;
+
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-    @PostMapping("/login")
-    public String login(@RequestBody AuthRequest request) {
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(), request.getPassword()
-                )
-        );
-        return jwtUtil.generateToken(request.getUsername());
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String token = authHeader.substring(7);
+        String username;
+
+        try {
+            username = jwtUtil.extractUsername(token);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("TOKEN INVÁLIDO");
+            return;
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtUtil.validateToken(token)) {
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(username, null, List.of());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("ACCESO DENEGADO: TOKEN EXPIRADO O INVÁLIDO");
+                return;
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }
 ```
 
 ---
 
-### **Paso 5: Configuración de seguridad JWT**
+## Paso 5: Configuración de seguridad
 
-Archivo: `src/main/java/com/miempresa/demoactuator/config/SecurityConfig.java`
+`src/main/java/com/example/jwt_demo/config/SecurityConfig.java`
 
-```java id="lab0630-5"
-package com.miempresa.demoactuator.config;
+```java
+package com.example.jwt_demo.config;
 
-import com.miempresa.demoactuator.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -189,6 +235,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -201,13 +250,11 @@ public class SecurityConfig {
                 .password(passwordEncoder.encode("password"))
                 .roles("USER")
                 .build();
-
         UserDetails admin = User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("admin123"))
                 .roles("ADMIN")
                 .build();
-
         return new InMemoryUserDetailsManager(user, admin);
     }
 
@@ -218,12 +265,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults());
+            );
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -232,12 +281,49 @@ public class SecurityConfig {
 
 ---
 
-### **Paso 6: Controlador protegido**
+## Paso 6: Controladores
 
-Archivo: `src/main/java/com/miempresa/demoactuator/controller/TestController.java`
+`AuthController.java`
 
-```java id="lab0630-6"
-package com.miempresa.demoactuator.controller;
+```java
+package com.example.jwt_demo.controllers;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.jwt_demo.dto.AuthRequest;
+import com.example.jwt_demo.util.JwtUtil;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody AuthRequest request) {
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        String token = jwtUtil.generateToken(request.getUsername());
+        return Collections.singletonMap("token", token);
+    }
+}
+```
+
+`TestController.java`
+
+```java
+package com.example.jwt_demo.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -254,33 +340,56 @@ public class TestController {
 
 ---
 
-### **Paso 7: Probar JWT**
+## Paso 7: Probar JWT con `curl`
 
-1. Ejecutar aplicación:
+1️⃣ Login y obtener token:
 
-```bash id="lab0630-7"
-./mvnw spring-boot:run
+```bash
+curl -X POST http://localhost:8080/auth/login \
+-H "Content-Type: application/json" \
+-d "{\"username\":\"user\",\"password\":\"password\"}"
 ```
 
-2. Enviar POST a `/auth/login` con JSON:
+Respuesta:
 
-```json id="lab0630-8"
-{
-  "username": "user",
-  "password": "password"
-}
+```json
+{"token":"<JWT_TOKEN_AQUI>"}
 ```
 
-3. Recibirás un **JWT token** como respuesta.
+2️⃣ Acceso al endpoint privado con token válido:
 
-4. Acceder a `/private` incluyendo JWT en header `Authorization: Bearer <token>` → acceso permitido.
+```bash
+curl -X GET http://localhost:8080/private \
+-H "Authorization: Bearer <JWT_TOKEN_AQUI>"
+```
 
-5. Probar token expirado → acceso denegado.
+Respuesta:
 
----
+```
+Acceso a endpoint protegido por JWT
+```
 
-### **Paso 8: Extensiones**
+3️⃣ Token inválido o incompleto:
 
-* Configurar filtros para validar JWT en cada request.
-* Agregar roles dentro del token y validarlos en endpoints (`hasRole("ADMIN")`).
-* Integrar con OAuth2 en laboratorios siguientes.
+```bash
+curl -X GET http://localhost:8080/private \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.12345"
+```
+
+Respuesta:
+
+```
+TOKEN INVÁLIDO
+```
+
+4️⃣ Token expirado:
+
+```
+ACCESO DENEGADO: TOKEN EXPIRADO O INVÁLIDO
+```
+
+----
+
+# En este laboratorio has aprendido a:
+
+* Implementar autenticación stateless en Spring Boot usando JWT, crear filtros que validan el token en cada request, manejar respuestas claras para tokens inválidos o expirados, y proteger endpoints con roles y permisos.

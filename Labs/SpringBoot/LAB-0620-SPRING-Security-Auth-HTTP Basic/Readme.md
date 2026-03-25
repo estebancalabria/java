@@ -1,15 +1,36 @@
-# 🟢 LAB-0620-SPRING-Role-Based-Security
+# 🟢 LAB-0620-SPRING-Role-Based-Security (HTTP Basic Authentication)
 
-**Objetivo:** Implementar roles y restricciones de acceso basadas en roles en una aplicación Spring Boot usando Spring Security.
+**Objetivo:** Implementar roles y restricciones de acceso basadas en roles en una aplicación Spring Boot usando Spring Security con HTTP Basic Authentication.
 
 ---
 
-### **Paso 0: Preparar proyecto**
+### **Paso 0: Crear el proyecto en Spring Initializr**
 
-1. Usar proyecto Spring Boot existente o crear uno nuevo con:
+1. Abrir [https://start.spring.io](https://start.spring.io).
 
-   * Dependencias: **Spring Web**, **Spring Security**, **Spring Boot DevTools** (opcional).
-2. Abrir en IDE (IntelliJ, VSCode, Eclipse).
+2. Seleccionar las siguientes opciones:
+
+   * **Project:** Maven
+   * **Language:** Java
+   * **Spring Boot:** la versión estable más reciente
+   * **Project Metadata:**
+
+     * Group: `com.miempresa`
+     * Artifact: `demoactuator`
+     * Name: `DemoRolesApplication`
+     * Package name: `com.miempresa.demoactuator`
+     * Packaging: `Jar`
+     * Java: 17 o superior
+
+3. En **Dependencies**, agregar:
+
+   * **Spring Web**
+   * **Spring Security**
+   * **Spring Boot DevTools** (opcional)
+
+4. Hacer clic en **GENERATE** para descargar el proyecto.
+
+5. Descomprimir y abrir en IDE (IntelliJ, VSCode o Eclipse).
 
 ---
 
@@ -17,7 +38,7 @@
 
 Archivo: `src/main/java/com/miempresa/demoactuator/DemoRolesApplication.java`
 
-```java id="lab0620-1"
+```java
 package com.miempresa.demoactuator;
 
 import org.springframework.boot.SpringApplication;
@@ -38,7 +59,7 @@ public class DemoRolesApplication {
 
 Archivo: `src/main/java/com/miempresa/demoactuator/controller/RoleController.java`
 
-```java id="lab0620-2"
+```java
 package com.miempresa.demoactuator.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,11 +87,11 @@ public class RoleController {
 
 ---
 
-### **Paso 3: Configuración de seguridad con roles**
+### **Paso 3: Configuración de seguridad con HTTP Basic**
 
 Archivo: `src/main/java/com/miempresa/demoactuator/config/SecurityConfig.java`
 
-```java id="lab0620-3"
+```java
 package com.miempresa.demoactuator.config;
 
 import org.springframework.context.annotation.Bean;
@@ -124,9 +145,6 @@ public class SecurityConfig {
                 .requestMatchers("/common").authenticated()
                 .anyRequest().permitAll()
             )
-            .formLogin(form -> form
-                .loginPage("/login").permitAll()
-            )
             .httpBasic(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable());
 
@@ -137,84 +155,76 @@ public class SecurityConfig {
 
 ---
 
-### **Paso 4: Controlador de login**
+### **Paso 4: Ejecutar la aplicación**
 
-Archivo: `src/main/java/com/miempresa/demoactuator/controller/LoginController.java`
-
-```java id="lab0620-4"
-package com.miempresa.demoactuator.controller;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-
-@Controller
-public class LoginController {
-
-    @GetMapping("/login")
-    public String login() {
-        return "login"; // Llamará a login.html en resources/templates
-    }
-}
-```
-
----
-
-### **Paso 5: Vista de login**
-
-Archivo: `src/main/resources/templates/login.html`
-
-```html id="lab0620-5"
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Login</title>
-</head>
-<body>
-<h2>Login</h2>
-<form th:action="@{/login}" method="post">
-    <div>
-        <label>Usuario:</label>
-        <input type="text" name="username"/>
-    </div>
-    <div>
-        <label>Contraseña:</label>
-        <input type="password" name="password"/>
-    </div>
-    <div>
-        <button type="submit">Ingresar</button>
-    </div>
-</form>
-</body>
-</html>
-```
-
----
-
-### **Paso 6: Probar roles**
-
-1. Ejecutar aplicación:
-
-```bash id="lab0620-6"
+```bash
 ./mvnw spring-boot:run
 ```
 
-2. Acceder a endpoints:
+---
 
-| Endpoint  | Usuario        | Resultado esperado |
-| --------- | -------------- | ------------------ |
-| `/user`   | user           | ✅ acceso permitido |
-| `/user`   | admin          | ❌ acceso denegado  |
-| `/admin`  | admin          | ✅ acceso permitido |
-| `/admin`  | user           | ❌ acceso denegado  |
-| `/common` | user o admin   | ✅ acceso permitido |
-| `/common` | no autenticado | ❌ redirige a login |
+### **Paso 5: Probar endpoints con curl**
 
-3. Probar `super` → acceso a `/user` y `/admin` permitido (tiene ambos roles).
+* **Acceso como `user` a `/user`**
+
+```bash
+curl -u user:password http://localhost:8080/user
+# Resultado: Acceso permitido para USER
+```
+
+* **Acceso como `admin` a `/user`**
+
+```bash
+curl -u admin:admin123 http://localhost:8080/user
+# Resultado: 401 Unauthorized
+```
+
+* **Acceso como `admin` a `/admin`**
+
+```bash
+curl -u admin:admin123 http://localhost:8080/admin
+# Resultado: Acceso permitido para ADMIN
+```
+
+* **Acceso como `user` a `/admin`**
+
+```bash
+curl -u user:password http://localhost:8080/admin
+# Resultado: 401 Unauthorized
+```
+
+* **Acceso a `/common` como usuario autenticado**
+
+```bash
+curl -u user:password http://localhost:8080/common
+# Resultado: Acceso para cualquier usuario autenticado
+curl -u admin:admin123 http://localhost:8080/common
+# Resultado: Acceso para cualquier usuario autenticado
+```
+
+* **Acceso a `/common` sin credenciales**
+
+```bash
+curl http://localhost:8080/common
+# Resultado: 401 Unauthorized
+```
+
+* **Acceso con `super` a `/user` y `/admin`**
+
+```bash
+curl -u super:super123 http://localhost:8080/user
+# Resultado: Acceso permitido para USER
+curl -u super:super123 http://localhost:8080/admin
+# Resultado: Acceso permitido para ADMIN
+```
 
 ---
 
-### **Paso 7: Extender práctica**
+### **En este laboratorio has:**
 
-* Cambiar roles asignados a usuarios.
-* Probar combinaciones de roles y restricciones de acceso.
-* Configurar redirecciones personalizadas según rol después del login.
+* Aprendido a crear un proyecto Spring Boot desde Spring Initializr.
+* Configurado usuarios con roles en memoria.
+* Protegido endpoints según roles (`USER`, `ADMIN`).
+* Implementado HTTP Basic Authentication y enviado credenciales mediante `curl`.
+* Verificado accesos y códigos HTTP (`200 OK`, `401 Unauthorized`).
+* Entendido cómo manejar usuarios con múltiples roles.
