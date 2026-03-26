@@ -431,9 +431,156 @@ public class ClientConfig {
 
 ```
 
+* Probamos el Authorization Server
+
+```
+
+>curl -i -u microA:secretA -X POST -d "grant_type=client_credentials&scope=read" http://localhost:9000/oauth2/token
+HTTP/1.1 401
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json;charset=UTF-8
+Content-Length: 26
+Date: Thu, 26 Mar 2026 12:36:46 GMT
+
+{"error":"invalid_client"}
+
+> curl -i -u servicio-origen:clavesecreta -X POST -d "grant_type=client_credentials&scope=read" http://localhost:9000/oauth2/token
+HTTP/1.1 200
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json;charset=UTF-8
+Content-Length: 753
+Date: Thu, 26 Mar 2026 12:37:45 GMT
+
+{"access_token":"eyJraWQiOiI5YmVjMjA2Ni1jY2NjLTQyNzUtYWRhNS0xNWJjNjQ3MzJkM2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzZXJ2aWNpby1vcmlnZW4iLCJhdWQiOiJzZXJ2aWNpby1vcmlnZW4iLCJuYmYiOjE3NzQ1Mjg2NjUsInNjb3BlIjpbInJlYWQiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNzc0NTI4OTY1LCJpYXQiOjE3NzQ1Mjg2NjUsImp0aSI6ImQzOTAzNTE5LWY3OGItNGViYy1iYjcwLWQwZWQ4Nzg0ZGM1NSJ9.Jx0lZHCV9T6kPTJvXWLObScIjgZ-8JgYMaOg9UF_texT9rmnF8mBqFfwvZpDyt0wW8R7sIppt1zOuIGtl-LC4oCBGmoY23GybXeBqHGAa4Zg995o2qjqW-Je5E0KWjWchBx7Yia-JqyOGGqDkmAXY1bOmrvuJcT1-xUa6zF-QyiE8-x6DUy_SrOk7X_Ng55OYIb-sNHfZ-GFagjFwWuJMSTDdE-ovHjBlwl6QGa9evowtu2ETSZQgNWVmyoL9wS3smngUhadFxfTMtb6nwkVGQsKC_nlgcMmv44o09kfXKE2XGr-8bYDfdz93SdBuGYjeK36Jx6W_KGz-UoxWJ9azQ","scope":"read","token_type":"Bearer","expires_in":300}
+```
+
 ## OAuthResourceClient (usuario->microservicio)
 
+* Creamos un proyecto de Spring Boot con un OAuth2 Resource Server
+	* La dependencia OAuth Client la utilizariamos en una aplicacion web para implementar el AUTHORIZATION_FLOW
 
+* Conecto el cliente con el servidor mediante el application.yml
+
+```
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
+```
+
+* Un servidor de autenticacion OAuth define una serie de Endpoints conocidos
+	* Segun el estandar los tokens se validan en esta direccion : /oauth2/jwks
+
+* Vamos a tener un controlador con dos endpoints
+
+```java
+package org.gobvasco.cursomsa.oauth_client.controllers;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class RecursoController {
+
+	@GetMapping("/recurso")
+	public String recurso() {
+		return "ESTO ES PRIVADO";
+	}
+	
+	@GetMapping("/publico")
+	public String publico() {
+		return "ESTO ES PUBLICO";
+	}
+}
+
+```
+
+* Lo probamos
+
+```
+C:\Cursos\Java>curl -i http://localhost:8080/publico
+HTTP/1.1 200
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 15
+Date: Thu, 26 Mar 2026 12:52:45 GMT
+
+ESTO ES PUBLICO
+C:\Cursos\Java>curl -i http://localhost:8080/recurso
+HTTP/1.1 401
+Set-Cookie: JSESSIONID=51145B2D7CEAC2CBB6AB0DC071C2558C; Path=/; HttpOnly
+WWW-Authenticate: Bearer resource_metadata="http://localhost:8080/.well-known/oauth-protected-resource"
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 0
+Date: Thu, 26 Mar 2026 12:52:58 GMT
+
+
+C:\Cursos\Java>curl -i -u servicio-origen:clavesecreta -X POST -d "grant_type=client_credentials&scope=read" http://localhost:9000/oauth2/token
+HTTP/1.1 200
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json;charset=UTF-8
+Content-Length: 753
+Date: Thu, 26 Mar 2026 12:53:56 GMT
+
+{"access_token":"eyJraWQiOiI5YmVjMjA2Ni1jY2NjLTQyNzUtYWRhNS0xNWJjNjQ3MzJkM2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzZXJ2aWNpby1vcmlnZW4iLCJhdWQiOiJzZXJ2aWNpby1vcmlnZW4iLCJuYmYiOjE3NzQ1Mjk2MzYsInNjb3BlIjpbInJlYWQiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNzc0NTI5OTM2LCJpYXQiOjE3NzQ1Mjk2MzYsImp0aSI6Ijk4MDRlZjU0LWE0MmUtNDQwOS05NGZkLTM5Mjg2YWMxYTg1MCJ9.mdIcsXrpS84xf4QZSLHihKe6l6zYSwYqdy5sXx9AYElRYIHLKrYAfSdIuYR49g8z1EJCCt1rbLL1aNjwE36E4pUnimxy9CbLAaPzrknswxFcq9qJ3rhV1-KhIvYXAVg5H1ni77C35SIcNI2lvqFJ_BsX35g9FoIFQ4hLmta7idUbhGirdRNSEqA-cNU3qAlMp8KhZYDt1BpIvfO-WAHtUYKwMFcP1KGCw6HsHgZW0bPpR-V0Z0NagBuIbK-yYrlnZeYhu1TooGVmdQ67g1Xt3EO5KRuvus7O-Z8BNwZYgwwq7Vp4zOBr2QUfe400TJZqvJ5O5_nnqZ6zC5d-urd-gA","scope":"read","token_type":"Bearer","expires_in":300}
+C:\Cursos\Java>
+C:\Cursos\Java>
+C:\Cursos\Java>
+C:\Cursos\Java>curl -i -H "Authorization: Bearer eyJraWQiOiI5YmVjMjA2Ni1jY2NjLTQyNzUtYWRhNS0xNWJjNjQ3MzJkM2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzZXJ2aWNpby1vcmlnZW4iLCJhdWQiOiJzZXJ2aWNpby1vcmlnZW4iLCJuYmYiOjE3NzQ1Mjk2MzYsInNjb3BlIjpbInJlYWQiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNzc0NTI5OTM2LCJpYXQiOjE3NzQ1Mjk2MzYsImp0aSI6Ijk4MDRlZjU0LWE0MmUtNDQwOS05NGZkLTM5Mjg2YWMxYTg1MCJ9.mdIcsXrpS84xf4QZSLHihKe6l6zYSwYqdy5sXx9AYElRYIHLKrYAfSdIuYR49g8z1EJCCt1rbLL1aNjwE36E4pUnimxy9CbLAaPzrknswxFcq9qJ3rhV1-KhIvYXAVg5H1ni77C35SIcNI2lvqFJ_BsX35g9FoIFQ4hLmta7idUbhGirdRNSEqA-cNU3qAlMp8KhZYDt1BpIvfO-WAHtUYKwMFcP1KGCw6HsHgZW0bPpR-V0Z0NagBuIbK-yYrlnZeYhu1TooGVmdQ67g1Xt3EO5KRuvus7O-Z8BNwZYgwwq7Vp4zOBr2QUfe400TJZqvJ5O5_nnqZ6zC5d-urd-gA" http://localhost:8080/recurso
+HTTP/1.1 200
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 15
+Date: Thu, 26 Mar 2026 12:54:51 GMT
+
+ESTO ES PRIVADO
+C:\Cursos\Java>curl -i -H "Authorization: Bearer eyJraWQiOiI5YmVjMjA2Ni1jY2NjLTQyNzUtYWRhNS0xNWJjNjQ3MzJkM2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzZXJ2aWNpby1vcmlnZW4iLCJhdWQiOiJzZXJ2aWNpby1vcmlnZW4iLCJuYmYiOjE3NzQ1Mjk2MzYsInNjb3BlIjpbInJlYWQiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNzc0NTI5OTM2LCJpYXQiOjE3NzQ1Mjk2MzYsImp0aSI6Ijk4MDRlZjU0LWE0MmUtNDQwOS05NGZkLTM5Mjg2YWMxYTg1MCJ9.mdIcsXrpS84xf4QZSLHihKe6l6zYSwYqdy5sXx9AYElRYIHLKrYAfSdIuYR49g8z1EJCCt1rbLL1aNjwE36E4pUnimxy9CbLAaPzrknswxFcq9qJ3rhV1-KhIvYXAVg5H1ni77C35SIcNI2lvqFJ_BsX35g9FoIFQ4hLmta7idUbhGirdRNSEqA-cNU3qAlMp8KhZYDt1BpIvfO-WAHtUYKwMFcP1KGCw6HsHgZW0bPpR-V0Z0NagBuIbK-yYrlnZeYhu1TooGVmdQ67g1Xt3EO5KRuvus7O-Z8BNwZYgwwq7Vp4zOBr2QUfe400TJZqvJ5O5_nnqZ6zC5" http://localhost:8080/recurso
+HTTP/1.1 401
+WWW-Authenticate: Bearer error="invalid_token", error_description="An error occurred while attempting to decode the Jwt: Signed JWT rejected: Invalid signature", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1", resource_metadata="http://localhost:8080/.well-known/oauth-protected-resource"
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 0
+Date: Thu, 26 Mar 2026 12:54:58 GMT
+```
 
 ---
 
