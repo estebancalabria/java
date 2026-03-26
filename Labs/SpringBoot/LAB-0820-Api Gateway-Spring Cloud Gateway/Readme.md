@@ -1,105 +1,51 @@
+# 🟢 LAB — Spring Cloud Gateway (Reactive)
 
-# 🟢 LAB-SPRING-API-GATEWAY
-
-**Objetivo:**
-Implementar un **API Gateway con Spring Cloud Gateway** que enrute requests hacia dos microservicios independientes.
+**Objetivo:** Implementar un API Gateway con Spring Cloud Gateway (WebFlux) que enrute requests hacia un microservicio independiente.
 
 ---
 
-# 🧱 Arquitectura
+## 🧱 Arquitectura
 
 ```text
 Cliente (Postman / Browser)
-        ↓
-   API Gateway (8080)
-     ↓         ↓
-Usuarios(8081) Productos(8082)
+            ↓
+    API Gateway  :8080
+            ↓
+  Productos Service :8081
 ```
 
 ---
 
-# 🧰 PARTE A — Microservicio Usuarios
+# PARTE A — Microservicio Productos
 
 ---
 
-## **Paso 0: Crear proyecto**
+## Paso 0: Crear proyecto
 
-Spring Initializr:
+En **Spring Initializr** (https://start.spring.io):
 
-* Spring Web
-
-Nombre:
-
-```bash
-usuarios-service
-```
+| Campo | Valor |
+|---|---|
+| Project | Maven |
+| Language | Java |
+| Spring Boot | (última estable) |
+| Artifact | `productos-service` |
+| Packaging | Jar |
+| Java | 21 |
+| **Dependencia** | **Spring Web** |
 
 ---
 
-## **Paso 1: application.properties**
+## Paso 1: application.properties
 
 ```properties
 server.port=8081
-spring.application.name=usuarios-service
-```
-
----
-
-## **Paso 2: Controller**
-
-```java
-@RestController
-@RequestMapping("/usuarios")
-public class UsuarioController {
-
-    @GetMapping
-    public List<String> listar() {
-        return List.of("Juan", "Ana", "Pedro");
-    }
-
-    @GetMapping("/{id}")
-    public String obtener(@PathVariable String id) {
-        return "Usuario " + id;
-    }
-}
-```
-
----
-
-## **Paso 3: Ejecutar**
-
-👉 [http://localhost:8081/usuarios](http://localhost:8081/usuarios)
-
----
-
-# 🟣 PARTE B — Microservicio Productos
-
----
-
-## **Paso 0: Crear proyecto**
-
-Spring Initializr:
-
-* Spring Web
-
-Nombre:
-
-```bash
-productos-service
-```
-
----
-
-## **Paso 1: application.properties**
-
-```properties
-server.port=8082
 spring.application.name=productos-service
 ```
 
 ---
 
-## **Paso 2: Controller**
+## Paso 2: Controller
 
 ```java
 @RestController
@@ -110,52 +56,71 @@ public class ProductoController {
     public List<String> listar() {
         return List.of("Notebook", "Mouse", "Teclado");
     }
-
-    @GetMapping("/{id}")
-    public String obtener(@PathVariable String id) {
-        return "Producto " + id;
-    }
 }
 ```
 
 ---
 
-## **Paso 3: Ejecutar**
+## Paso 3: Ejecutar y probar ✅
 
-👉 [http://localhost:8082/productos](http://localhost:8082/productos)
+Levantá el servicio y verificá que responde **directamente**:
 
----
-
-# 🟢 PARTE C — API Gateway
-
----
-
-## **Paso 0: Crear proyecto**
-
-Spring Initializr:
-
-* **Spring Cloud Gateway**
-* **Spring WebFlux**
-
-Nombre:
-
-```bash
-api-gateway
+```
+GET http://localhost:8081/productos
 ```
 
+> 🟢 Si ves la lista de productos, el microservicio está listo.
+
 ---
 
-## ⚠️ IMPORTANTE (Spring Cloud)
+---
 
-Agregar en `pom.xml`:
+# PARTE B — API Gateway
+
+---
+
+## Paso 0: Crear proyecto
+
+En **Spring Initializr**:
+
+| Campo | Valor |
+|---|---|
+| Project | Maven |
+| Language | Java |
+| Spring Boot | (última estable) |
+| Artifact | `api-gateway` |
+| Packaging | Jar |
+| Java | 21 |
+| **Dependencia** | **Reactive Gateway** *(Spring Cloud Routing)* |
+
+> ⚠️ **No agregar Spring Web.** Reactive Gateway ya incluye su propio servidor reactivo (Netty).
+> En Spring Initializr existen dos opciones parecidas: elegir **Reactive Gateway**, no "Gateway".
+
+---
+
+## Paso 1: Verificar pom.xml
+
+El `pom.xml` generado debe tener estas dependencias y el BOM de Spring Cloud:
 
 ```xml
+<properties>
+    <java.version>21</java.version>
+    <spring-cloud.version>2025.0.0</spring-cloud.version> <!-- ajustar según versión -->
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+    </dependency>
+</dependencies>
+
 <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>2023.0.1</version>
+            <version>${spring-cloud.version}</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -165,7 +130,28 @@ Agregar en `pom.xml`:
 
 ---
 
-## **Paso 1: application.yml**
+## Paso 2: Ejecutar SIN configuración de rutas
+
+Levantá el gateway **antes** de tocar el `application.yml`.
+
+Probá:
+
+```
+GET http://localhost:8080/productos
+```
+
+> 💥 Responde **404**. El gateway está corriendo pero no sabe a dónde enviar el request.
+>
+> Esto es intencional — vamos a configurar las rutas en el siguiente paso.
+
+---
+
+## Paso 3: Configurar rutas en application.yml
+
+> ⚠️ **Importante:** En Spring Boot 4.x + Spring Cloud 2025.x, el namespace del gateway
+> cambió. Las rutas van bajo `spring.cloud.gateway.server.webflux`.
+
+Creá (o reemplazá) el archivo `src/main/resources/application.yml`:
 
 ```yaml
 server:
@@ -174,103 +160,54 @@ server:
 spring:
   cloud:
     gateway:
-      routes:
-        - id: usuarios-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/usuarios/**
-        
-        - id: productos-service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/productos/**
+      server:
+        webflux:
+          routes:
+            - id: productos-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/productos,/productos/**
 ```
 
+### ¿Qué hace cada parte?
+
+| Propiedad | Descripción |
+|---|---|
+| `id` | Nombre identificador de la ruta (libre) |
+| `uri` | URL del microservicio de destino |
+| `predicates: Path` | Condición: solo rutea si el path matchea |
+| `/productos,/productos/**` | Acepta `/productos` exacto Y cualquier sub-path |
+
 ---
 
-## **Paso 2: Clase principal**
+## Paso 4: Reiniciar y probar ✅
 
-```java
-@SpringBootApplication
-public class ApiGatewayApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(ApiGatewayApplication.class, args);
-    }
-}
+Reiniciá el gateway y probá:
+
+```
+GET http://localhost:8080/productos        → Lista todos los productos
 ```
 
----
-
-# 🚀 Paso 3: Ejecutar TODO
-
-👉 Orden:
-
-1. usuarios-service (8081)
-2. productos-service (8082)
-3. api-gateway (8080)
+> 🟢 El cliente habla con el **puerto 8080** (gateway).
+> El gateway redirige transparentemente al **puerto 8081** (microservicio).
+> El microservicio nunca es accedido directamente por el cliente.
 
 ---
 
-# 🧪 Paso 4: Probar
+## 💣 Paso 5 (Didáctico) — ¿Qué pasa si el microservicio se cae?
 
----
+1. **Apagá** el `productos-service`
+2. Volvé a hacer:
 
-## 🔹 Sin gateway
-
-```bash
-GET http://localhost:8081/usuarios
-GET http://localhost:8082/productos
 ```
-
----
-
-## 🔹 Con gateway
-
-```bash
-GET http://localhost:8080/usuarios
 GET http://localhost:8080/productos
 ```
 
-👉 🔥 Funciona igual, pero ahora pasa por el gateway
-
----
-
-# 🧠 Explicación clave para clase
-
-> “El cliente ya no conoce los microservicios.
-> Solo conoce el Gateway.”
-
----
-
-# 🔥 Paso 5 (opcional) — Filtro global
-
-```java
-@Bean
-public GlobalFilter loggingFilter() {
-    return (exchange, chain) -> {
-        System.out.println("Request → " + exchange.getRequest().getURI());
-        return chain.filter(exchange);
-    };
-}
-```
-
-👉 Vas a ver logs cada vez que pasa por el gateway
-
----
-
-# 💣 Paso 6 (MUY didáctico)
-
-Apagar un microservicio:
-
-👉 usuarios-service OFF
-
-Probar:
-
-```bash
-GET http://localhost:8080/usuarios
-```
-
-💥 Error → muestra dependencia del gateway
+> 💥 El gateway devuelve un error de conexión.
+>
+> Esto demuestra la **dependencia**: si el microservicio no está disponible,
+> el gateway no puede enrutar. En producción, esto se resuelve con
+> **Circuit Breaker** (Resilience4j) — tema para el próximo lab.
 
 ---
 
@@ -278,8 +215,10 @@ GET http://localhost:8080/usuarios
 
 En este laboratorio aprendiste:
 
-* Qué es un API Gateway
-* Cómo enrutar requests
-* Cómo desacoplar cliente de microservicios
-* Cómo centralizar acceso
+- Qué es un **API Gateway** y para qué sirve
+- Cómo crear un microservicio con **Spring Web**
+- Cómo crear un gateway con **Spring Cloud Gateway (WebFlux/Reactive)**
+- Cómo configurar rutas con el namespace correcto para **Spring Boot 4.x**
+- El efecto de tener (y no tener) un microservicio disponible
 
+> **Concepto clave:** El cliente ya no conoce los microservicios. Solo conoce el Gateway.
