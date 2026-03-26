@@ -25,7 +25,7 @@
 5. Abrir en Eclipse (Eclipse 1)
 
 
-### 🔹 Activar Eureka Server y Configurar Eureka Server
+### Activar Eureka Server y Configurar Eureka Server
 
 * Agregar anotacion @EnableEurekaServer al Archivo: `EurekaserverApplication.java`
 
@@ -82,7 +82,7 @@ eureka.client.fetch-registry=false
 * En el application.properties poner
 
 ```properties
-server.port=8081
+server.port=8080
 spring.application.name=servicio-a
 eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 ```
@@ -135,7 +135,9 @@ public class DatosController {
 }
 ```
 
-### 🔹 Ejecutar Microservicio A
+> En este ejemplo el servicio se llama a sí mismo solo para simplificar, pero en un sistema real esto sería otro microservicio.
+
+### Ejecutar Microservicio A
 
 * Run As → Spring Boot App
 * Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 8081
