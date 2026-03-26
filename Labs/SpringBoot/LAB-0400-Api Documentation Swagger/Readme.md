@@ -30,6 +30,8 @@ Configurar:
 ### 📦 Dependencias:
 
 * Spring Web
+* SpringBoot Dev Tools (Opcional)
+* SpringDoc OpenAPI
 
 👉 Presionar **Generate** y descomprimir.
 
@@ -39,31 +41,7 @@ Configurar:
 
 Abrir en tu IDE (Eclipse / IntelliJ / VS Code)
 
----
-
-# 📦 Paso 3: Agregar dependencia de Swagger
-
-Abrir:
-
-```
-pom.xml
-```
-
-Agregar dentro de `<dependencies>`:
-
-```xml id="dep01"
-<dependency>
-    <groupId>org.springdoc</groupId>
-    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-    <version>2.5.0</version>
-</dependency>
-```
-
-👉 Esto habilita automáticamente Swagger UI.
-
----
-
-# 📦 Paso 4: Crear paquete de controllers
+# 📦 Paso 3: Crear paquete de controllers
 
 Crear paquete:
 
@@ -73,7 +51,7 @@ org.indra.demoswagger.controllers
 
 ---
 
-# 🌐 Paso 5: Crear un Controller de prueba
+# 🌐 Paso 4: Crear un Controller de prueba
 
 Archivo:
 
@@ -104,13 +82,13 @@ public class PersonaController {
 
 ---
 
-# ▶️ Paso 6: Ejecutar la aplicación
+# ▶️ Paso 5: Ejecutar la aplicación
 
 Ejecutar la clase principal.
 
 ---
 
-# 🌐 Paso 7: Acceder a Swagger UI
+# 🌐 Paso 6: Acceder a Swagger UI
 
 Abrir en el navegador:
 
@@ -126,7 +104,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-# 🧪 Paso 8: Probar desde Swagger
+# 🧪 Paso 7: Probar desde Swagger
 
 1. Expandir `/api/personas`
 2. Probar `GET`
@@ -135,7 +113,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-# ✨ Paso 9: Agregar documentación a los endpoints
+# ✨ Paso 8: Agregar documentación a los endpoints
 
 Modificar el controller:
 
