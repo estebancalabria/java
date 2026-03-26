@@ -66,9 +66,7 @@ eureka.client.fetch-registry=false
 ---
 
 
-## 🟠 Paso 2: Configurar Microservicio A
-
-### 🔹 Crear Microservicio A
+## Paso 2: Crear Microservicio A 
 
 1. Ir a [https://start.spring.io/](https://start.spring.io/)
 2. Configurar:
@@ -88,6 +86,9 @@ server.port=8081
 spring.application.name=servicio-a
 eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 ```
+
+> Para desactivarlo poner  eureka.client.enabled=false
+
 
 ### 🔹 Crear endpoint de prueba
 
@@ -118,7 +119,13 @@ public class UsuarioController {
 ---
 
 
-## 🟠 Paso 3: Configurar Microservicio B
+## 🟠 Paso 3:  Crear Microservicio B
+
+1. Mismo proceso que Microservicio A
+
+   * Artifact: `servicio-b`
+   * Dependencias: **Spring Web**, **Eureka Discovery Client**
+
 
 ### 🔹 application.properties
 
@@ -130,70 +137,9 @@ spring.application.name=servicio-b
 eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 ```
 
----
-
-### 🔹 Clase principal
-
-Archivo: `ServicioBApplication.java`
-
-```java
-package com.example.serviciob;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class ServicioBApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(ServicioBApplication.class, args);
-    }
-}
-```
-
----
-
-### 🔹 Crear endpoint de prueba
-
-Archivo: `PedidoController.java`
-
-```java
-package com.example.serviciob;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class PedidoController {
-
-    @GetMapping("/pedidos")
-    public String listarPedidos() {
-        return "Lista de pedidos desde Servicio B";
-    }
-}
-```
-
----
-
-### 🔹 Crear Microservicio B
-
-1. Mismo proceso que Microservicio A
-
-   * Artifact: `servicio-b`
-   * Dependencias: **Spring Web**, **Eureka Discovery Client**
 
 
-### 🔹 Ejecutar Microservicio B
-
-
-* Run As → Spring Boot App
-* Volver a Eureka Server → ahora deberían aparecer **servicio-a** y **servicio-b**
-
----
-
-## 🟠 Paso 4: Descubrir servicios desde otro microservicio
-
-### 🔹 Crear un cliente simple en Microservicio A
+###  Descubrir servicios desde otro microservicio
 
 Archivo: `ClienteController.java`
 
@@ -231,6 +177,15 @@ class AppConfig {
     }
 }
 ```
+
+### 🔹 Ejecutar Microservicio B
+
+
+* Run As → Spring Boot App
+* Volver a Eureka Server → ahora deberían aparecer **servicio-a** y **servicio-b**
+
+---
+
 
 ---
 
