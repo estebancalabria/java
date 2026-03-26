@@ -24,10 +24,8 @@
 4. Click en **Generate** → descargar el zip y descomprimir
 5. Abrir en Eclipse (Eclipse 1)
 
----
 
-
-### 🔹 Activar Eureka Server yConfigurar Eureka Server
+### 🔹 Activar Eureka Server y Configurar Eureka Server
 
 * Agregar anotacion @EnableEurekaServer al Archivo: `EurekaserverApplication.java`
 
@@ -48,7 +46,6 @@ public class EurekaserverApplication {
 }
 ```
 
-
 ### 🔹 Configurar propiedades
 
 Archivo: `src/main/resources/application.properties`
@@ -60,8 +57,6 @@ eureka.client.register-with-eureka=false
 eureka.client.fetch-registry=false
 ```
 
----
-
 ### 🔹 Ejecutar Eureka Server
 
 1. Click derecho → Run As → Spring Boot App
@@ -69,6 +64,7 @@ eureka.client.fetch-registry=false
 3. Deberías ver la **interfaz de Eureka**, con mensaje “**Instances currently registered with Eureka**: 0”
 
 ---
+
 
 ## 🟠 Paso 2: Configurar Microservicio A
 
