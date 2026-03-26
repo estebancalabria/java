@@ -79,41 +79,15 @@ eureka.client.fetch-registry=false
 4. Click en **Generate** → descargar zip y descomprimir
 5. Abrir en Eclipse (Eclipse 2 o nueva ventana)
 
----
+### 🔹 Configurar Conexion a Eureka Server
 
-
-### 🔹 application.properties
+* En el application.properties poner
 
 ```properties
 server.port=8081
 spring.application.name=servicio-a
-
-# Configuración Eureka Client
 eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 ```
-
----
-
-### 🔹 Clase principal
-
-Archivo: `ServicioAApplication.java`
-
-```java
-package com.example.servicioa;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class ServicioAApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(ServicioAApplication.class, args);
-    }
-}
-```
-
----
 
 ### 🔹 Crear endpoint de prueba
 
@@ -134,14 +108,15 @@ public class UsuarioController {
     }
 }
 ```
----
 
 ### 🔹 Ejecutar Microservicio A
 
 * Run As → Spring Boot App
 * Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 8081
 
+
 ---
+
 
 ## 🟠 Paso 3: Configurar Microservicio B
 
