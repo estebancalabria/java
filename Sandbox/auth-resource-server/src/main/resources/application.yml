@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          microA:
+            client-id: microA
+            client-secret: secretA
+            scope: read
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/microA-oidc"
+            authorization-uri: http://localhost:9000/oauth2/authorize
+            token-uri: http://localhost:9000/oauth2/token
+        resourceserver:
+          jwt:
+            jwk-set-uri: http://localhost:9000/oauth2/jwks
