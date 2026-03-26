@@ -110,7 +110,7 @@ public class AppConfig {
 
 ### Crear endpoints de prueba
 
-* Vamos a crear dos endopoints, uno que llama al servicio A directamente y uno que se llama a si mismo indirectamtente con eureka
+* Vamos a crear dos endopoints, uno responde directamente y otro realiza una llamada HTTP usando el nombre lógico del servicio resuelto por Eureka.
 * Archivo: `DatosController.java`
 
 ```java
