@@ -89,11 +89,11 @@ eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 
 > Para desactivarlo poner  eureka.client.enabled=false
 
-### Configurar request HTTPPAra que usen Eureka
+### Configurar requests HTTP para que usen Eureka
 
 * Para que los request HTTP usen Eureka debemos usar la anotacion @LoadBalanced en una configuracion
 * Archivo AppConfig.java
-* Cadda vez que usamos servicio-a como url lo cambiara por la url correspondiente que le pase Eureka de forma transparente
+* Cada vez que usamos servicio-a como url lo cambiara por la url correspondiente que le pase Eureka de forma transparente
 * Esto tambien se puede hacer con WebClient y con Feign
 
 ``` java
