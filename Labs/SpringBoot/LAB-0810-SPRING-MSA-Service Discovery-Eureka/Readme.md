@@ -10,9 +10,7 @@
 
 ---
 
-## 🟠 Paso 0: Crear proyectos en Spring Initializr
-
-### 🔹 Crear Eureka Server
+## 🟠 Crear Eureka Server
 
 1. Ir a [https://start.spring.io/](https://start.spring.io/)
 2. Configurar:
@@ -28,33 +26,10 @@
 
 ---
 
-### 🔹 Crear Microservicio A
 
-1. Ir a [https://start.spring.io/](https://start.spring.io/)
-2. Configurar:
+### 🔹 Activar Eureka Server yConfigurar Eureka Server
 
-   * Group: `com.example`
-   * Artifact: `servicio-a`
-3. Dependencias: **Spring Web**, **Eureka Discovery Client**
-4. Click en **Generate** → descargar zip y descomprimir
-5. Abrir en Eclipse (Eclipse 2 o nueva ventana)
-
----
-
-### 🔹 Crear Microservicio B
-
-1. Mismo proceso que Microservicio A
-
-   * Artifact: `servicio-b`
-   * Dependencias: **Spring Web**, **Eureka Discovery Client**
-
----
-
-## 🟠 Paso 1: Configurar Eureka Server
-
-### 🔹 Activar Eureka Server
-
-Archivo: `EurekaserverApplication.java`
+* Agregar anotacion @EnableEurekaServer al Archivo: `EurekaserverApplication.java`
 
 ```java
 package com.example.eurekaserver;
@@ -73,18 +48,14 @@ public class EurekaserverApplication {
 }
 ```
 
----
 
 ### 🔹 Configurar propiedades
 
 Archivo: `src/main/resources/application.properties`
 
 ```properties
-server.port=8761
-
 spring.application.name=eureka-server
-
-# Eureka server configura que se registre a sí mismo (no lo necesitamos)
+server.port=8761
 eureka.client.register-with-eureka=false
 eureka.client.fetch-registry=false
 ```
@@ -100,6 +71,20 @@ eureka.client.fetch-registry=false
 ---
 
 ## 🟠 Paso 2: Configurar Microservicio A
+
+### 🔹 Crear Microservicio A
+
+1. Ir a [https://start.spring.io/](https://start.spring.io/)
+2. Configurar:
+
+   * Group: `com.example`
+   * Artifact: `servicio-a`
+3. Dependencias: **Spring Web**, **Eureka Discovery Client**
+4. Click en **Generate** → descargar zip y descomprimir
+5. Abrir en Eclipse (Eclipse 2 o nueva ventana)
+
+---
+
 
 ### 🔹 application.properties
 
@@ -153,7 +138,6 @@ public class UsuarioController {
     }
 }
 ```
-
 ---
 
 ### 🔹 Ejecutar Microservicio A
@@ -220,7 +204,16 @@ public class PedidoController {
 
 ---
 
+### 🔹 Crear Microservicio B
+
+1. Mismo proceso que Microservicio A
+
+   * Artifact: `servicio-b`
+   * Dependencias: **Spring Web**, **Eureka Discovery Client**
+
+
 ### 🔹 Ejecutar Microservicio B
+
 
 * Run As → Spring Boot App
 * Volver a Eureka Server → ahora deberían aparecer **servicio-a** y **servicio-b**
