@@ -1,71 +1,19 @@
-# 🟢 LAB-0408-SPRING-OAuth2-Servidor-Propio
-
-**Objetivo:**
-Implementar un flujo completo de OAuth2 usando:
-
-* 🟢 Un **Authorization Server propio (Spring Boot)**
-* 🔵 Un **Client (Spring Boot)** que hace login contra ese servidor
-
-Vas a tener **2 aplicaciones corriendo en paralelo**.
+# 🟢 LABORATORIO COMPLETO: AUTH SERVER + RESOURCE SERVER
 
 ---
 
-# 🧱 Arquitectura del laboratorio
+## **PARTE A — Authorization Server**
 
-```
-[ Cliente (puerto 8080) ] ---> [ Authorization Server (puerto 9000) ]
-```
+### 1️⃣ Crear proyecto con Spring Initializr
 
-* Cliente → redirige al login del Authorization Server
-* Auth Server → autentica usuario
-* Auth Server → devuelve token + información del usuario al cliente
+* Maven, Java 17+
+* Dependencies:
 
----
+  * Spring Web
+  * Spring Security
+  * OAuth2 Authorization Server
 
-# 🟢 PARTE A — Authorization Server
-
----
-
-## **Paso 0: Crear proyecto Authorization Server**
-
-1. Abrir [https://start.spring.io](https://start.spring.io)
-2. Configurar opciones del proyecto:
-
-   * **Project:** Maven
-   * **Language:** Java
-   * **Spring Boot:** versión estable más reciente
-   * **Group:** `com.miempresa`
-   * **Artifact:** `auth-server`
-   * **Name:** `AuthServerApplication`
-   * **Package name:** `com.miempresa.authserver`
-   * **Packaging:** Jar
-   * **Java:** 17 o superior
-3. En **Dependencies**, agregar:
-
-   * **Spring Web**
-   * **Spring Security**
-   * **OAuth2 Authorization Server**
-4. Hacer clic en **GENERATE** para descargar el proyecto y abrirlo en tu IDE.
-
----
-
-## **Paso 1: Configuración básica del servidor**
-
-Archivo: `src/main/resources/application.yml`
-
-```yaml
-server:
-  port: 9000
-```
-
-* Esto indica que el Authorization Server se ejecutará en **puerto 9000**.
-* Cada aplicación de este laboratorio tendrá su propio puerto.
-
----
-
-## **Paso 2: Crear clase principal**
-
-Archivo: `src/main/java/com/miempresa/authserver/AuthServerApplication.java`
+### 2️⃣ Clase principal
 
 ```java
 package com.miempresa.authserver;
@@ -75,20 +23,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class AuthServerApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(AuthServerApplication.class, args);
     }
 }
 ```
 
-* `@SpringBootApplication` marca la clase como principal y permite que Spring Boot la ejecute.
-
----
-
-## **Paso 3: Configurar usuarios en memoria**
-
-Archivo: `src/main/java/com/miempresa/authserver/config/UserConfig.java`
+### 3️⃣ Usuarios en memoria
 
 ```java
 package com.miempresa.authserver.config;
@@ -105,159 +46,66 @@ public class UserConfig {
 
     @Bean
     public UserDetailsService users() {
-        // Creamos un usuario con username 'esteban' y password '1234'
-        UserDetails user = User
-                .withUsername("esteban")
-                .password("{noop}1234") // {noop} indica que no se aplica encoding
-                .roles("USER")
-                .build();
-
-        // InMemoryUserDetailsManager guarda usuarios en memoria para pruebas
+        UserDetails user = User.withUsername("juan")
+                               .password("{noop}1234")
+                               .roles("USER")
+                               .build();
         return new InMemoryUserDetailsManager(user);
     }
 }
 ```
 
-* Cada usuario tiene un **nombre**, **contraseña** y **roles** asignados.
-* `{noop}` indica que la contraseña se almacena en texto plano (solo para laboratorio).
-* Esto permite que el Authorization Server pueda autenticar a los usuarios cuando el cliente haga login.
-
-
-## **Paso 3: Configurar cliente OAuth**
-
-👉 ESTE ES EL CLIENTE QUE VA A USAR LA OTRA APP
+### 4️⃣ Cliente OAuth2
 
 ```java
-@Bean
-public RegisteredClientRepository registeredClientRepository() {
+package com.miempresa.authserver.config;
 
-    RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-            .clientId("cliente-app")
-            .clientSecret("{noop}secret")
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+
+import java.util.UUID;
+
+@Configuration
+public class ClientConfig {
+
+    @Bean
+    public RegisteredClientRepository registeredClientRepository() {
+        RegisteredClient clientA = RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("microA")
+            .clientSecret("{noop}secretA")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .redirectUri("http://localhost:8080/login/oauth2/code/custom")
-            .scope("openid")
-            .scope("profile")
+            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS) // client_credentials
+            .scope("read")
             .build();
-
-    return new InMemoryRegisteredClientRepository(client);
+        return new InMemoryRegisteredClientRepository(clientA);
+    }
 }
 ```
 
-## **Paso 4: Probar login en el navegador**
+### 5️⃣ Levantar Authorization Server
 
-* Abrir en el navegador: `http://localhost:9000/login`
-* Ingresar las credenciales definidas en memoria:
-
-  * Usuario: `esteban`
-  * Contraseña: `1234`
-* Esto verifica que Spring Security puede autenticar al usuario correctamente.
+* Ejecutar la clase principal `AuthServerApplication` desde el IDE.
+* Puerto por defecto: `9000`
 
 ---
 
-## **Paso 5: Probar el endpoint de autorización con curl**
+## **PARTE B — Resource Server (Microservicio A)**
 
-* Para simular un **flujo password grant** (solo testing):
+### 1️⃣ Crear proyecto Spring Boot
 
-```bash
-curl -u client-id:client-secret -X POST \
-  -d "grant_type=password&username=esteban&password=1234" \
-  http://localhost:9000/oauth2/token
-```
+* Maven, Java 17+
+* Dependencies:
 
-* Devuelve un JSON con:
+  * Spring Web
+  * Spring Security
+  * OAuth2 Resource Server
 
-  * `access_token` → token JWT para acceder a recursos protegidos
-  * `token_type`
-  * `expires_in`
-  * `scope`
-
----
-
-## **Paso 6: Probar el endpoint JWKS con curl**
-
-```bash
-curl http://localhost:9000/oauth2/jwks
-```
-
-* Devuelve la **clave pública** usada para validar los JWT emitidos por el Authorization Server.
-
----
-
-## **Paso 7: Validar acceso con el token**
-
-* Una vez obtenido el `access_token`, se puede probar un recurso protegido (simulado) en otro servicio cliente:
-
-```bash
-curl -H "Authorization: Bearer <access_token>" \
-  http://localhost:8080/protected-resource
-```
-
-* Devuelve el resultado del recurso protegido si el token es válido.
-* Devuelve `401 Unauthorized` si el token es inválido o expiró.
-
----
-
-## **Paso 8: Resumen de endpoints disponibles**
-
-| Endpoint            | Método   | Descripción                                        |
-| ------------------- | -------- | -------------------------------------------------- |
-| `/login`            | GET/POST | Página de login de Spring Security                 |
-| `/oauth2/authorize` | GET/POST | Inicio del flujo de autorización                   |
-| `/oauth2/token`     | POST     | Intercambia código o credenciales por access token |
-| `/oauth2/jwks`      | GET      | Devuelve clave pública para validar JWT            |
-| `/logout`           | POST     | Cierra la sesión del usuario                       |
-
-
----
-
-## **Paso 4: Configuración de seguridad**
-
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-
-    return http.formLogin().and().build();
-}
-```
-
----
-
-## **Paso 5: Ejecutar**
-
-👉 Levantar este proyecto en:
-
-```
-http://localhost:9000
-```
-
----
-
-# 🔵 PARTE B — Cliente OAuth2
-
----
-
-## **Paso 0: Crear segundo proyecto**
-
-Spring Initializr:
-
-* Spring Web
-* Spring Security
-* OAuth2 Client
-* Thymeleaf (opcional)
-
-👉 Nombre:
-
-```
-oauth-client
-```
-
----
-
-## **Paso 1: application.yml**
+### 2️⃣ Configuración `application.yml`
 
 ```yaml
 server:
@@ -266,152 +114,143 @@ server:
 spring:
   security:
     oauth2:
-      client:
-        registration:
-          custom:
-            client-id: cliente-app
-            client-secret: secret
-            scope: openid, profile
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/custom
-
-        provider:
-          custom:
-            authorization-uri: http://localhost:9000/oauth2/authorize
-            token-uri: http://localhost:9000/oauth2/token
-            user-info-uri: http://localhost:9000/userinfo
-            user-name-attribute: sub
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
 ```
 
----
-
-## **Paso 2: Controller**
+### 3️⃣ SecurityConfig
 
 ```java
-@Controller
-public class HomeController {
+package com.miempresa.microA.config;
 
-    @GetMapping("/")
-    public String home() {
-        return "home";
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/recurso").authenticated() // protegido
+                .anyRequest().permitAll()                     // público
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> {})
+            );
+
+        return http.build();
+    }
+}
+```
+
+### 4️⃣ Endpoints público y protegido
+
+```java
+package com.miempresa.microA.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+@RestController
+public class RecursoController {
+
+    @GetMapping("/recurso")
+    public String recurso(@AuthenticationPrincipal Jwt jwt) {
+        return "Hola " + jwt.getClaimAsString("sub") + ", accediste al recurso protegido!";
     }
 
-    @GetMapping("/user")
-    public String user(@AuthenticationPrincipal OAuth2User principal, Model model) {
-
-        model.addAttribute("name", principal.getAttribute("sub"));
-
-        return "user";
+    @GetMapping("/publico")
+    public String publico() {
+        return "Este endpoint es público y accesible sin token.";
     }
 }
 ```
 
 ---
 
-## **Paso 3: SecurityConfig**
+## **PARTE C — Probar con curl paso a paso**
 
-```java
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/").permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2Login(oauth -> oauth
-            .defaultSuccessUrl("/user", true)
-        );
+### 1️⃣ Acceder sin token al endpoint protegido
 
-    return http.build();
+```bash
+curl -i http://localhost:8080/recurso
+```
+
+**Resultado esperado:**
+
+```
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer
+...
+```
+
+---
+
+### 2️⃣ Acceder al endpoint público
+
+```bash
+curl -i http://localhost:8080/publico
+```
+
+**Resultado esperado:**
+
+```
+HTTP/1.1 200 OK
+...
+Este endpoint es público y accesible sin token.
+```
+
+---
+
+### 3️⃣ Pedir token al Authorization Server (client_credentials)
+
+```bash
+curl -i -u microA:secretA -X POST -d "grant_type=client_credentials&scope=read" http://localhost:9000/oauth2/token
+```
+
+**Respuesta esperada (JSON):**
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "read"
 }
 ```
 
+💡 Copiar el `access_token` para el siguiente paso.
+
 ---
 
-## **Paso 4: Vistas**
+### 4️⃣ Acceder al endpoint protegido con token
 
-### home.html
-
-```html
-<h2>Cliente OAuth</h2>
-<a href="/user">Login con OAuth2</a>
+```bash
+curl -i -H "Authorization: Bearer <access_token>" http://localhost:8080/recurso
 ```
 
----
+**Resultado esperado:**
 
-### user.html
-
-```html
-<h2>Usuario autenticado</h2>
-<p th:text="${name}"></p>
-<a href="/logout">Logout</a>
+```
+HTTP/1.1 200 OK
+...
+Hola microA, accediste al recurso protegido!
 ```
 
 ---
 
-# 🚀 Paso 5: Ejecutar TODO
+✅ Con esto tenés **un laboratorio completo, funcional, didáctico y paso a paso**:
 
-👉 Orden importante:
-
-1. Levantar **Auth Server (9000)**
-2. Levantar **Cliente (8080)**
-
----
-
-# 🧪 Paso 6: Probar flujo
-
-1. Ir a:
-
-```
-http://localhost:8080
-```
-
-2. Click → `/user`
-
-3. Redirección a:
-
-```
-http://localhost:9000/login
-```
-
-4. Login con:
-
-```
-usuario: esteban
-password: 1234
-```
-
-5. Redirección de vuelta a cliente
-
----
-
-# 🧠 Qué está pasando (explicación clave para clase)
-
-👉 Flujo real OAuth2:
-
-1. Cliente redirige al Auth Server
-2. Usuario se autentica
-3. Auth Server devuelve **authorization code**
-4. Cliente intercambia code por **access token**
-5. Spring Security arma el `OAuth2User`
-
----
-
-# 🔥 Valor pedagógico de este lab
-
-Esto les deja clarísimo:
-
-✅ OAuth NO es “login con Google”
-✅ Es un **protocolo**
-✅ Podés tener tu propio servidor
-✅ Spring lo abstrae TODO
-
----
-
-# 💣 Extensiones (para nivel avanzado)
-
-* Agregar JWT en el Auth Server
-* Mapear roles
-* Proteger APIs REST
-* Multi-client
+1. Probás primero sin token → 401
+2. Endpoint público accesible sin token
+3. Solicitud de token con client_credentials
+4. Acceso al recurso protegido con token válido
+5. Uso de `@AuthenticationPrincipal` para mostrar información del token
 
