@@ -89,111 +89,61 @@ eureka.client.service-url.defaultZone=http://localhost:8761/eureka
 
 > Para desactivarlo poner  eureka.client.enabled=false
 
+### Configurar request HTTPPAra que usen Eureka
 
-### 🔹 Crear endpoint de prueba
+* Para que los request HTTP usen Eureka debemos usar la anotacion @LoadBalanced en una configuracion
+* Archivo AppConfig.java
+* Cadda vez que usamos servicio-a como url lo cambiara por la url correspondiente que le pase Eureka de forma transparente
+* Esto tambien se puede hacer con WebClient y con Feign
 
-Archivo: `UsuarioController.java`
+``` java
+@Configuration
+public class AppConfig {
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+	    return new RestTemplate();
+	}
+}
+
+```  
+
+### Crear endpoints de prueba
+
+* Vamos a crear dos endopoints, uno que llama al servicio A directamente y uno que se llama a si mismo indirectamtente con eureka
+* Archivo: `DatosController.java`
 
 ```java
-package com.example.servicioa;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 @RestController
-public class UsuarioController {
+public class DatosController {
 
-    @GetMapping("/usuarios")
-    public String listarUsuarios() {
-        return "Lista de usuarios desde Servicio A";
+	@Autowired
+	RestTemplate restTemplate;
+	
+    @GetMapping("/datos")
+    public String listarPedidos() {
+        return "Datos desde Servicio A";
     }
-}
-```
+
+    @GetMapping("/datos-ind")
+    public String listarPedidosIndirectamente() {
+    	
+        return "Indirecto " + restTemplate.getForObject("http://servicio-a/datos", String.class);    	
+    }
+ 
+    
+}```
 
 ### 🔹 Ejecutar Microservicio A
 
 * Run As → Spring Boot App
 * Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 8081
 
-
----
-
-
-## 🟠 Paso 3:  Crear Microservicio B
-
-1. Mismo proceso que Microservicio A
-
-   * Artifact: `servicio-b`
-   * Dependencias: **Spring Web**, **Eureka Discovery Client**
-
-
-### 🔹 application.properties
-
-```properties
-server.port=8082
-spring.application.name=servicio-b
-
-# Configuración Eureka Client
-eureka.client.service-url.defaultZone=http://localhost:8761/eureka
-```
-
-
-
-###  Descubrir servicios desde otro microservicio
-
-Archivo: `ClienteController.java`
-
-```java
-package com.example.servicioa;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@RestController
-public class ClienteController {
-
-    private final RestTemplate restTemplate;
-
-    public ClienteController(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-
-    @GetMapping("/pedidos-via-discovery")
-    public String obtenerPedidos() {
-        // Aquí simulamos descubrimiento; normalmente usarías @LoadBalanced RestTemplate
-        return restTemplate.getForObject("http://localhost:8082/pedidos", String.class);
-    }
-}
-
-@Configuration
-class AppConfig {
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-}
-```
-
-### 🔹 Ejecutar Microservicio B
-
-
-* Run As → Spring Boot App
-* Volver a Eureka Server → ahora deberían aparecer **servicio-a** y **servicio-b**
-
----
-
-
----
-
 ### 🔹 Probar descubrimiento
 
-* Abrir navegador → [http://localhost:8081/pedidos-via-discovery](http://localhost:8081/pedidos-via-discovery)
-* ✔ Deberías ver: “Lista de pedidos desde Servicio B”
-* Eureka permite **descubrir servicios dinámicamente**, aunque en laboratorio usamos el puerto fijo para simplificar.
+* Probar Urls
+  * http://localhost:8080/datos
+  * http://localhost:8080/datos-ind
 
 ---
 
