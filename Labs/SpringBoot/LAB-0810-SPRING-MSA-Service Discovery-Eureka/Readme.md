@@ -127,7 +127,8 @@ public class DatosController {
 
     @GetMapping("/datos-ind")
     public String listarPedidosIndirectamente() {
-    	
+    	// "servicio-a" NO es una URL real.
+		// Gracias a @LoadBalanced, Spring consulta Eureka y resuelve la instancia (IP + puerto)
         return "Indirecto " + restTemplate.getForObject("http://servicio-a/datos", String.class);    	
     }
  
@@ -140,7 +141,7 @@ public class DatosController {
 ### Ejecutar Microservicio A
 
 * Run As → Spring Boot App
-* Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 808o
+* Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 8080
 
 ### 🔹 Probar descubrimiento
 
