@@ -235,7 +235,7 @@ Acceso permitodo para USER
 
 * Incluir en el POM
 
-````xml
+```xml
 <dependency>
     <groupId>io.jsonwebtoken</groupId>
     <artifactId>jjwt-api</artifactId>
