@@ -140,7 +140,7 @@ public class DatosController {
 ### Ejecutar Microservicio A
 
 * Run As → Spring Boot App
-* Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 8081
+* Volver a Eureka Server → deberías ver **servicio-a registrado** con puerto 808o
 
 ### 🔹 Probar descubrimiento
 
