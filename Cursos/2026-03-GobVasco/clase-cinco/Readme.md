@@ -60,6 +60,12 @@ public class DemoController {
 http://localhost:8080/v3/api-docs
 ```
 
+* Hay coniguraciones para solo dejar hacer gets
+
+```
+springdoc.swagger-ui.supported-submit-methods=get
+```
+
 # Descubrimento de Servicios
 
 # Api Gateway
