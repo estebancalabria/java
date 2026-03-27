@@ -320,4 +320,225 @@ public class DatosController {
 }
 ```
 
+* Ejecutar el servidor y luego el cliente
+
+* Voy a ver que el cliente se regista en el servidor de eureka si consulto
+
+```
+http://localhost:8761/
+
+```
+
+* Verificar las invocaciones
+
+```
+http://localhost:8080/datos
+http://localhost:8080/datos-indirecto
+```
+
+* Al hacer la segunda invocacion (Cliente) -> (Servicio) ---> [restTemplate] ---> (eureka server) ---> [Traduce la URL con nombre servicio a ip fisica] --> (Servicio)
+
+* Si el dia de maniana cambio la ubicacion o el puerto del servicio, el servicio se vuelve a registrar con Eureka con el mismo nombre y los clientes no cambian porque no necesitas saber ni ubicaciones fisica, ni puertos, solo nombres de servicios
+* Podemos integrar lo que vimos y en spring intializr si creamos un proyecto con api gatewat y eureka client deberiamos escribir una condiguracion asi :
+
+```
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: documentation
+              uri: lb://discovery-client
+              predicates:
+                - Path=/docu,/docu/** 
+```
+
+* El Eureka server em general en la Red Privada (no tien salida a internet)
+* Es ideal tener uno para toda la organizacion
+	* Pero entiendo que desde el punto de vista operativo puede ser un problema si hay varios equipos y proyectos distintos en cuanto a coordinacion
+	* Perro es factible tener uno por proyecto, el tema es si el mismo microservicio esta en dos proyectos cuidado con el tema de los nombres
+
 # Monitoreo
+
+* Aspectos a considerar
+	* Monitoring por defecto que viene con Java (Niveles de logging) ----> Mas que nada en desarrollo
+		 * Niveles de logging : ERROR, INFO, VERBOSE, TRACE
+		 * El problema de los monitoring por defecto es cuando pasamos a produccion. No es tan facil ver la consola y cabiar los niveles de logging
+   * El tema del monitoring por defecto es cuando vamos a produccion ----> En ese caso la solucion de montoring es el Actuator
+   
+   * Ahora vemos la pregunta que me hicieron : Correlacion entre Microservicios
+	   *  Si tengo 3 microservicios como se en springboot como sigo un flujo de negocio como identifico la llamada desde el punto 1 al punto 3. Una estrategia.
+      *  (Servicio a)  -> (Servicio B) -> (Servicio c)
+      *  En el algun punto algo falla. Como lo debuggeo?
+	      * Puedo ver el actuator del Servicio a, de Servicio B, del Servicio C y la realidad es que tal vez no alcanza para darme cuenta el problema
+          * Necesito ver la pila de llamadas a nivel microservicios y eso no me lo solucona ni el logging de java ni actuator
+		          * Debe haber alguna libreria para  solucionar estyo pero en mi caso no la conozco
+          * Solucion propuesta por el profe
+		          * Agregar en los servicios un filtro que procese el request y le agregue un header por donde va pasando
+
+```
+//Lees del header el "X-Stack-Trace" que viene
+String stackActual = leerHeader("X-Stack-Trace")
+
+//En la respuesta
+HttpHeader header = nre HttpHeader
+header.set("X-Stack-Trace", stackActual +"ServicioQueEstoyInvocando")
+```
+
+       * Seguramente hay alguna manera de logging distribuido mejor pero se las debo....
+            
+* Si es a nivel de entender el comportamiento del usuario pensando en su uso desde una pagina web
+	 * Si necesito un producto
+	 * Por ejemplo en azure esta el application insights
+	 * Producto a nivel despliegue 
+ 
+* Crear un proyecto con
+ 	 * Sprinb Web
+	 * Dev Tools
+     * Sprinboot Actuator
+
+* Crear un controlador para ver logging y demas
+
+```java
+package org.gobvasco.cursomsa.actuator_demo.controllers;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+	
+	public static final Logger log = LoggerFactory.getLogger(DemoController.class)
+
+	@GetMapping("/demo")
+	public String demo() {
+		
+		log.info("Se incoa al servicio");
+		try {
+			log.warn("Voy  a lanzar una excepcion de prueba, ojo!");
+			throw new RuntimeException("Excepcion forzada");
+		} catch (Exception e) {
+			log.error("Aca capturo el error");
+		}
+		
+		return "Servicio invodado";
+	}
+}
+
+```
+
+* Probar el controlador y ver los distintos endpoints de actuator (imagenos un escenario donde estamos en produccion)
+ 	* http://localhost:8080/actuator/health
+
+* Ver lla documentacion de Actuator (Perdon no me funciono) para configurar el archivo application.properties
+```
+///Pendiente
+```
+
+* Se pueden consultar los logs mediante la URL (consultar los logs de la clase demo controller si esta activado)
+
+```
+http://localhost:8080/actuator/loggers/org.gobvasco.cursomsa.actuator_demo.controllers.DemoController
+```
+
+* Puedo cambiar el nivel de logging mediante una request
+
+```
+curl -X POST -H "Content-Type: application/json" \
+    -d '{"configuredLevel":"DEBUG"}' \
+    http://localhost:8080/actuator/org.gobvasco.cursomsa.actuator_demo.controllers.DemoController
+```
+
+* Puedo de esta maenera hacer un debuggeo en produccion
+
+* Ver : https://www.baeldung.com/spring-boot-actuators
+
+#  Circuit Breaker  
+
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed
+
+    Closed --> Open : Fallas consecutivas\n(supera threshold)
+    Open --> HalfOpen : Timeout expirado
+    HalfOpen --> Closed : Request exitoso
+    HalfOpen --> Open : Request falla
+
+    state Closed {
+        [*] --> Funcionando
+        Funcionando --> Funcionando : Requests OK
+        Funcionando --> Error : Falla request
+        Error --> Funcionando : Reset contador
+        Error --> Error : Incrementa contador
+    }
+
+    state Open {
+        [*] --> Bloqueado
+        Bloqueado --> Bloqueado : Rechaza requests\n(fallback)
+    }
+
+    state HalfOpen {
+        [*] --> Probando
+        Probando --> Probando : Request en prueba
+    }
+```
+
+* El patron de microservicios Circuit Breaker se implementa con resilence4j
+* Que hacer si un servicio esta caido, reintentar o devolver un mesaje de error
+
+> https://resilience4j.readme.io/
+
+```
+// Create a CircuitBreaker with default configuration
+CircuitBreaker circuitBreaker = CircuitBreaker
+  .ofDefaults("backendService");
+
+// Create a Retry with default configuration
+// 3 retry attempts and a fixed time interval between retries of 500ms
+Retry retry = Retry
+  .ofDefaults("backendService");
+
+// Create a Bulkhead with default configuration
+Bulkhead bulkhead = Bulkhead
+  .ofDefaults("backendService");
+
+Supplier<String> supplier = () -> backendService
+  .doSomething(param1, param2)
+
+// Decorate your call to backendService.doSomething() 
+// with a Bulkhead, CircuitBreaker and Retry
+// **note: you will need the resilience4j-all dependency for this
+Supplier<String> decoratedSupplier = Decorators.ofSupplier(supplier)
+  .withCircuitBreaker(circuitBreaker)
+  .withBulkhead(bulkhead)
+  .withRetry(retry)  
+  .decorate();
+
+// When you don't want to decorate your lambda expression,
+// but just execute it and protect the call by a CircuitBreaker.
+String result = circuitBreaker
+  .executeSupplier(backendService::doSomething);
+
+// You can also run the supplier asynchronously in a ThreadPoolBulkhead
+ ThreadPoolBulkhead threadPoolBulkhead = ThreadPoolBulkhead
+  .ofDefaults("backendService");
+
+// The Scheduler is needed to schedule a timeout 
+// on a non-blocking CompletableFuture
+ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(3);
+TimeLimiter timeLimiter = TimeLimiter.of(Duration.ofSeconds(1));
+
+CompletableFuture<String> future = Decorators.ofSupplier(supplier)
+    .withThreadPoolBulkhead(threadPoolBulkhead)
+    .withTimeLimiter(timeLimiter, scheduledExecutorService)
+    .withCircuitBreaker(circuitBreaker)
+    .withFallback(asList(TimeoutException.class, 
+                         CallNotPermittedException.class, 
+                         BulkheadFullException.class),  
+                  throwable -> "Hello from Recovery")
+    .get().toCompletableFuture();
+```
+
