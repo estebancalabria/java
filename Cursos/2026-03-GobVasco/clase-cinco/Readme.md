@@ -174,8 +174,150 @@ http://localhost:8080/docu
 http://localhost:9005/docu
 ```
 
+# Revision de Pendiente
+
+---
+
+## Vimos esto: 
+
+- Documentación de APIs (OpenAPI / Swagger)   <<<<<<<<<< LO VIMOS
+- Gestión de migraciones (Flyway o Liquibase) <<<  Iba en la clase de JPA.  <<<< https://github.com/estebancalabria/java/tree/main/Labs/SpringBoot/LAB-0530-SPRING-JPA-Migrations-Flyway  
+
+
+- De esto estuvimos hablando largo y tentido es conceptual
+  - MÓDULO 6. ARQUITECTURA DE MICROSERVICIOS
+     - Evolución de arquitecturas: monolito vs microservicios
+     - Arquitecturas híbridas
+     - Principios de diseño de microservicios
+    - Patrones clave: API Gateway, Configuración
+
+
+## Vamos a finalizer con esto
+
+
+Service Discovery
+MÓDULO 5. GESTIÓN Y MONITORIZACIÓN
+- Introducción a Spring Boot Actuator
+- Endpoints de monitorización
+- Métricas y health checks
+- Configuración de logs
+- Logging estructurado
+- Gestión de perfiles en producción
+- Buenas prácticas de observabilidad
+
+>>>> Si tengo 3 microservicios como se en springboot como sigo un flujo de negocio como identifico la llamada desde el punto 1 al punto 3. Una estrategia. 
+
+>>> Circuit Breaker  <<<<<<<< ME OLVIDE... AL FINAL LES COMENTO
+
+---
+
 # Descubrimento de Servicios
 
+* Crea el servidor de eureka en spring initializ con Eureka Server
 
+* Agregar la anotacion @EnableErekaServer a la clase ppal
+
+```java
+package org.gobvasco.cursomsa.discovery_server;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class DiscoveryServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DiscoveryServerApplication.class, args);
+	}
+
+}
+
+```
+
+* Configurar propiedades en application.properties
+
+```
+server.port=8761
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+```
+
+* Luego ir a la Web
+
+```
+http://localhost:8761/
+```
+
+* Crear con Spring initalizer un servicio que se registre solo en el servidor eureka
+	* Eureka Client
+	* Spring Web
+    *... 
+
+* Configurar la conexion eon el server (debe hacer un post a esa url para registrarse)
+
+```
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+```
+
+* Configurar la inyeccion de dependencias del restClient con el decorador @LoadBalanced para que por detras se comunique con el servidor Eureka y lo use como una suerte de DNS para convetir direccion htttp://servicio ---> htto://localhost:8080 de forma transparente
+
+```java
+package org.gobvasco.cursomsa.discovery_client.configuration;
+
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class AppConfig {
+	
+	@Bean
+	@LoadBalanced  
+	//ESta anotacion hace que cuando hago un request de la forma http://servicioa
+	//Por detras sin que lo note hace un request al server de eureka y tranforma
+	//http://servicioa ----> http://localhost:8080
+	//Es como un DNS transparente
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+}
+```
+
+* Agregar un controlador para probar el descubrimiento de servicios
+
+```
+package org.gobvasco.cursomsa.discovery_client.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class DatosController {
+
+	@Autowired
+	RestTemplate restTemplate;
+	
+	@GetMapping("/datos")
+	public String dameDatos() {
+		return "Datos desde el servicio a");
+	}
+	
+	@GetMapping("/datos-indirecto")
+	public String datosIndirecto() {
+		//Esto lo pondria en otro servicio, pero lo hago en este espero que se entienda, para no tener que crear otro prouecto
+		//http://discovery-clien NO es una URL real
+		//gracias al #LoadBalanced, Spring consuta a Eurka de forma transparente y devuelve algo como http://localhost:8080
+		String llamadaUsandoEureka = this.restTemplate.getForObject("http://discovery-client/datos", String.class);
+		return "Usando el servidor eureka se devuelve " + llamadaUsandoEureka;
+	}
+	
+}
+```
 
 # Monitoreo
